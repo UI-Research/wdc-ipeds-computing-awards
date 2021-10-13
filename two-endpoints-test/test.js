@@ -107,44 +107,52 @@
     };
     console.log('testing-v1');
     // Download the data
-    myConnector.getData = function(table, doneCallback){
-        var dateObj = JSON.parse(tableau.connectionData),
-            dateString = dateObj.yearRequested;
+    myConnector.getData = async function(table, doneCallback){
+        var dateObj = JSON.parse(tableau.connectionData);
+        var dateString = dateObj.yearRequested;
+        
         console.log('testing-v2');
         // Branch logic based on the table ID
         switch(table.tableInfo.id) {
             case 'completions':
-                console.log('testing-v6');
-                //Manually handle asynchronicity
-                apiCall = `https://educationdata.urban.org/api/v1/college-university/ipeds/completions-cip-2/${dateString}/`;
-                console.log(`api1: ${apiCall}`);
-                $.getJSON(apiCall, function (data){
+                var morePages = true;
+                var page = 1;
+                while (morePages && page <= 50) {
+                    console.log('testing-v6');
+                    //Manually handle asynchronicity
+                    apiCall = `https://educationdata.urban.org/api/v1/college-university/ipeds/completions-cip-2/${dateString}/?page=${page}`;
+                    console.log(`api${page}: ${apiCall}`);
+                    var data = await fetch(apiCall).then(response => response.json());
+                    
                     var feat = data.results,
                         tableData = [];
-
                     var i = 0;
                     // Iterate over the JSON object
                     if (table.tableInfo.id == "completions") {
-                        for (var i = 0, len = feat.length; i < len; i++) {
-                            
-                            tableData.push({
-                            "unitid": feat[i].unitid,
-                            "year": feat[i].year,
-                            "fips": feat[i].fips,
-                            "cipcode": feat[i].cipcode,
-                            "award_level": feat[i].award_level,
-                            "majornum": feat[i].majornum,
-                            "sex": feat[i].sex,
-                            "race": feat[i].race,
-                            "awards": feat[i].awards,
-                            });
-                            
+                        if (feat.length > 0){
+                            for (var i = 0, len = feat.length; i < len; i++) {
+                                
+                                tableData.push({
+                                "unitid": feat[i].unitid,
+                                "year": feat[i].year,
+                                "fips": feat[i].fips,
+                                "cipcode": feat[i].cipcode,
+                                "award_level": feat[i].award_level,
+                                "majornum": feat[i].majornum,
+                                "sex": feat[i].sex,
+                                "race": feat[i].race,
+                                "awards": feat[i].awards,
+                                });
+                                
+                            }
+                            page++;
+                        } else{
+                            morePages = false;
                         }
                     }
                     table.appendRows(tableData);
                     doneCallback();
-                });
-                
+                };
                 break;
                 
             case 'institution':
@@ -178,19 +186,16 @@
     };
 
     tableau.registerConnector(myConnector);
-    console.log('testing-v3');
     // Create event listeners for when the user submits the form
     $(document).ready(function() {
         $("#submitButton").click(function() {
             var dateObj = {
                 yearRequested: $('#year').val().trim(),
             };
-            console.log('testing-v4');
             if (dateObj.yearRequested) {
                 tableau.connectionData = JSON.stringify(dateObj); // Use this variable to pass data to your getSchema and getData functions
                 tableau.connectionName = "Test feed from two different endpoints"; // This will be the data source name in Tableau
                 tableau.submit(); // This sends the connector object to Tableau
-                console.log('testing-v5');
             } else {
                 $('#errorMsg').html("Enter a valid year. For example, 2018.");
             }
