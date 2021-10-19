@@ -156,31 +156,39 @@
                 break;
                 
             case 'institution':
-                apiCall = `https://educationdata.urban.org/api/v1/college-university/ipeds/directory/${dateString}/`;
-                console.log(`api2: ${apiCall}`);
-                $.getJSON(apiCall, function(data){
+                var morePages = true;
+                var page = 1;
+                while(morePages && page <= 3){
+                    apiCall = `https://educationdata.urban.org/api/v1/college-university/ipeds/directory/${dateString}/?page=${page}`;
+                    console.log(`api${page}: ${apiCall}`);
+                    var data = await fetch(apiCall).then(response => response.json());
                     var feat = data.results,
                         tableData = [];
-                    
+                        
                     var i = 0;
 
                     // Iterate over the JSON object
                     if (table.tableInfo.id == "institution") {
-                        for (var i = 0, len = feat.length; i < len; i++) {
-                            tableData.push({
-                            "unitid": feat[i].unitid,
-                            "inst_name": feat[i].inst_name,
-                            "address": feat[i].address,
-                            "region": feat[i].region,
-                            "inst_control": feat[i].inst_control,
-                            "hbcu": feat[i].hbcu,
-                            "tribal_college": feat[i].tribal_college,
-                            });
+                        if(feat.length > 0){
+                            for (var i = 0, len = feat.length; i < len; i++) {
+                                tableData.push({
+                                "unitid": feat[i].unitid,
+                                "inst_name": feat[i].inst_name,
+                                "address": feat[i].address,
+                                "region": feat[i].region,
+                                "inst_control": feat[i].inst_control,
+                                "hbcu": feat[i].hbcu,
+                                "tribal_college": feat[i].tribal_college,
+                                });
+                            }
+                            page++;
+                        } else {
+                            morePages = false;
                         }
                     }
                     table.appendRows(tableData);
                     doneCallback();
-                });
+                };
                 break;
         };
     };
