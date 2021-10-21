@@ -110,8 +110,11 @@
     myConnector.getData = async function(table, doneCallback){
         var dateObj = JSON.parse(tableau.connectionData);
         var dateString = dateObj.yearRequested;
+        var fip = dateObj.fipRequested;
         
-        console.log('testing-v2');
+        
+        console.log(`fip: ${fip}`);
+        
         // Branch logic based on the table ID
         switch(table.tableInfo.id) {
             case 'completions':
@@ -120,7 +123,7 @@
                 while (morePages && page <= 50) {
                     console.log('testing-v6');
                     //Manually handle asynchronicity
-                    apiCall = `https://educationdata.urban.org/api/v1/college-university/ipeds/completions-cip-2/${dateString}/?page=${page}`;
+                    apiCall = `https://educationdata.urban.org/api/v1/college-university/ipeds/completions-cip-2/${dateString}/?fips=${fip}&page=${page}`;
                     console.log(`api${page}: ${apiCall}`);
                     var data = await fetch(apiCall).then(response => response.json());
                     
@@ -199,6 +202,7 @@
         $("#submitButton").click(function() {
             var dateObj = {
                 yearRequested: $('#year').val().trim(),
+                fipRequested:  $('#state-fip').val().trim(),
             };
             if (dateObj.yearRequested) {
                 tableau.connectionData = JSON.stringify(dateObj); // Use this variable to pass data to your getSchema and getData functions
