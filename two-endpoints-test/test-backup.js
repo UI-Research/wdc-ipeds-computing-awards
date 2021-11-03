@@ -119,85 +119,77 @@
         switch(table.tableInfo.id) {
             case 'completions':
                 var moreYears = true;
-                var yearCount = 0;
+                var yearCount = 1;
                 var morePages = true;
                 var page = 1;
-                
-                //while (moreYears) {
-                while (morePages && page <= 50) {
-                    console.log('testing-v6');
-    
-                    //Manually handle asynchronicity
-                    
-                    apiCall = `https://educationdata.urban.org/api/v1/college-university/ipeds/completions-cip-2/${dateString}/?fips=${fip}&cipcode=110000&page=${page}`;
-                    console.log(`api${page}: ${apiCall}`);
-                    
-                    var data = await fetch(apiCall).then(response => response.json());
-
-                    var nextPage = data.next;
-                    
-                    var feat = data.results,
-                        tableData = [];
-                    var i = 0;
-                    // Iterate over the JSON object
-                    if (table.tableInfo.id == "completions") {
-                        if (feat.length > 0){
-                            for (var i = 0, len = feat.length; i < len; i++) {
-                                
-                                tableData.push({
-                                "unitid": feat[i].unitid,
-                                "year": feat[i].year,
-                                "fips": feat[i].fips,
-                                "cipcode": feat[i].cipcode,
-                                "award_level": feat[i].award_level,
-                                "majornum": feat[i].majornum,
-                                "sex": feat[i].sex,
-                                "race": feat[i].race,
-                                "awards": feat[i].awards,
-                                });
-                                
-                            }
-                            if(nextPage == null) { //Check if we reach the page limit for the current page
-                                page = 1;
-                                yearCount++;
-                                console.log(`Pagee Counter: ${page}`);
-                                console.log(`Yearr Counter: ${yearCount}`);
-                                dateString++;
-                                console.log(`Nextt year: ${dateString}`);
-                            }
-                            else{
-                                page++;
-                            }
-                            if(yearCount >= 3){
-                                console.log('Break-1');
-                                moreYears = false;
-                                break;
-                                
-                            }
-                        } else{
-                            morePages = false;
-                        }
+                function UrlExists(url){
+                    var http = new XMLHttpRequest();
+                    http.open('HEAD', url, false);
+                    http.send();
+                    if (http.status == 404){
+                        console.log('false');
+                        yearCount++;
+                        console.log(`Year Counter: ${yearCount}`);
+                        dateString++;
+                        console.log(`Next year: ${dateString}`);
+                        return false;
+                    }else{
+                        console.log('true');
+                    }    return true;
+                }
+                while (moreYears && yearCount <= 3) {
+                    while (morePages && page <= 50) {
+                        console.log('testing-v6');
+                        //Manually handle asynchronicity
                         
-                    }
-                    table.appendRows(tableData);
-                    doneCallback();
+                        apiCall = `https://educationdata.urban.org/api/v1/college-university/ipeds/completions-cip-2/${dateString}/?fips=${fip}&cipcode=110000&page=${page}`;
+                        UrlExists(apiCall);
+                        console.log(`api${page}: ${apiCall}`);
+                        
+                        var data = await fetch(apiCall).then(response => response.json());
+                        console.log(`Status: ${apiCall.response}`);
+                        var feat = data.results,
+                            tableData = [];
+                        var i = 0;
+                        // Iterate over the JSON object
+                        if (table.tableInfo.id == "completions") {
+                            if (feat.length > 0){
+                                for (var i = 0, len = feat.length; i < len; i++) {
+                                    
+                                    tableData.push({
+                                    "unitid": feat[i].unitid,
+                                    "year": feat[i].year,
+                                    "fips": feat[i].fips,
+                                    "cipcode": feat[i].cipcode,
+                                    "award_level": feat[i].award_level,
+                                    "majornum": feat[i].majornum,
+                                    "sex": feat[i].sex,
+                                    "race": feat[i].race,
+                                    "awards": feat[i].awards,
+                                    });
+                                    
+                                }
+                                page++;
+                                UrlExists(apiCall);
+                            } else{
+                                morePages = false;
+                            }
+                        }
+                        table.appendRows(tableData);
+                        doneCallback();
+                    };
+                        moreYears = false;
+                         console.log('testing-v9');
                 };
-                    console.log('table-1-done-rendering');
-                //};
                 break;
-
+                
             case 'institution':
-                var moreYears = true;
-                var yearCount = 0;
                 var morePages = true;
                 var page = 1;
                 while(morePages && page <= 3){
-                    apiCall = `https://educationdata.urban.org/api/v1/college-university/ipeds/directory/${dateString}/?fips=${fip}&cipcode=110000&page=${page}`;
+                    apiCall = `https://educationdata.urban.org/api/v1/college-university/ipeds/directory/${dateString}/?page=${page}`;
                     console.log(`api${page}: ${apiCall}`);
                     var data = await fetch(apiCall).then(response => response.json());
-
-                    var nextPage = data.next;
-
                     var feat = data.results,
                         tableData = [];
                         
@@ -217,32 +209,14 @@
                                 "tribal_college": feat[i].tribal_college,
                                 });
                             }
-                            if(nextPage == null) { //Check if we reach the page limit for the current page
-                                page = 1;
-                                yearCount++;
-                                console.log(`Pagee Counter: ${page}`);
-                                console.log(`Yearr Counter: ${yearCount}`);
-                                dateString++;
-                                console.log(`Nextt year: ${dateString}`);
-                            }
-                            else{
-                                page++;
-                            }
-                            if(yearCount >= 3){
-                                console.log('Break-2');
-                                moreYears = false;
-                                break;
-                                
-                            }
-                        } 
-                        else {
+                            page++;
+                        } else {
                             morePages = false;
                         }
                     }
                     table.appendRows(tableData);
                     doneCallback();
                 };
-                console.log('table-2-done-rendering');
                 break;
         };
     };
