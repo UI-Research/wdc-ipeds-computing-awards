@@ -3,7 +3,31 @@
     var myConnector = tableau.makeConnector();
 
     // Define the schema
-    myConnector.getSchema = function(schemaCallback) {
+   myConnector.getSchema = function(schemaCallback) {
+
+            /* MM - code for standard connection - we need to decide which columns to join on
+            var standardConnection = {
+            "alias": "Joined awards data",
+            "tables": [{
+                "id": "completions",
+                "alias": "Institution Completions"
+            }, {
+                "id": "institution",
+                "alias": "Institution"
+            }],
+            "joins": [{
+                "left": {
+                    "tableAlias": "Institution Completions",
+                    "columnId": ["unitid", "year"]
+                },
+                "right": {
+                    "tableAlias": "Institution",
+                    "columnId": ["unitid", "year"]
+                },
+                "joinType": "left"
+            }]
+        };*/
+
         // Schema for Completion
         let completionCols = [
             {
@@ -67,6 +91,11 @@
                 dataType: tableau.dataTypeEnum.int,
             },
             {
+                id: "year",
+                alias: "Year",
+                dataType: tableau.dataTypeEnum.int
+            },
+            {
                 id: "inst_name",
                 alias: "Institution Name",
                 dataType: tableau.dataTypeEnum.string,
@@ -103,6 +132,8 @@
             alias: "Institution",
             columns: institutionCols
         };
+        // schema callback with standard connection
+        //schemaCallback([completionTable, institutionTable], [standardConnection]);
         schemaCallback([completionTable, institutionTable]);
     };
     console.log('testing-v1');
@@ -122,6 +153,7 @@
                 var yearCount = 0;
                 var morePages = true;
                 var page = 1;
+                var tableData = [];
                 
                 //while (moreYears) {
                 while (morePages && page <= 50) {
@@ -136,8 +168,9 @@
 
                     var nextPage = data.next;
                     
-                    var feat = data.results,
-                        tableData = [];
+                    var feat = data.results
+                    //,
+                    //    tableData = [];
                     var i = 0;
                     // Iterate over the JSON object
                     if (table.tableInfo.id == "completions") {
@@ -179,10 +212,13 @@
                         }
                         
                     }
-                    table.appendRows(tableData);
-                    doneCallback();
+
+
                 };
+                    // MM - append rows after all data has been pulled so that user knows when data is finished loaading
+                    table.appendRows(tableData);
                     console.log('table-1-done-rendering');
+                    doneCallback();
                 //};
                 break;
 
@@ -191,6 +227,7 @@
                 var yearCount = 0;
                 var morePages = true;
                 var page = 1;
+                var tableData = [];
                 while(morePages && page <= 3){
                     apiCall = `https://educationdata.urban.org/api/v1/college-university/ipeds/directory/${dateString}/?fips=${fip}&cipcode=110000&page=${page}`;
                     console.log(`api${page}: ${apiCall}`);
@@ -198,8 +235,9 @@
 
                     var nextPage = data.next;
 
-                    var feat = data.results,
-                        tableData = [];
+                    var feat = data.results
+                    //,
+                        //tableData = [];
                         
                     var i = 0;
 
@@ -209,6 +247,7 @@
                             for (var i = 0, len = feat.length; i < len; i++) {
                                 tableData.push({
                                 "unitid": feat[i].unitid,
+                                "year": feat[i].year,
                                 "inst_name": feat[i].inst_name,
                                 "address": feat[i].address,
                                 "region": feat[i].region,
@@ -239,10 +278,12 @@
                             morePages = false;
                         }
                     }
-                    table.appendRows(tableData);
-                    doneCallback();
+
+
                 };
                 console.log('table-2-done-rendering');
+                table.appendRows(tableData);
+                doneCallback();
                 break;
         };
     };
