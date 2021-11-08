@@ -5,7 +5,7 @@
     // Define the schema
    myConnector.getSchema = function(schemaCallback) {
 
-            /* MM - code for standard connection - we need to decide which columns to join on
+            //MM - code for standard connection - we need to decide which columns to join on
             var standardConnection = {
             "alias": "Joined awards data",
             "tables": [{
@@ -18,47 +18,52 @@
             "joins": [{
                 "left": {
                     "tableAlias": "Institution Completions",
-                    "columnId": ["unitid", "year"]
+                    "columnId": "unitid_year"
                 },
                 "right": {
                     "tableAlias": "Institution",
-                    "columnId": ["unitid", "year"]
+                    "columnId": "unitid_year"
                 },
                 "joinType": "left"
             }]
-        };*/
+        };
 
         // Schema for Completion
         let completionCols = [
             {
+                id: "unitid_year",
+                alias: "ID-year",
+                dataType: tableau.dataTypeEnum.string
+            },
+            {
                 id: "unitid",
                 alias: "ID",
-                dataType: tableau.dataTypeEnum.int
+                dataType: tableau.dataTypeEnum.string
             }, 
             {
                 id: "year",
                 alias: "Year",
-                dataType: tableau.dataTypeEnum.int
+                dataType: tableau.dataTypeEnum.string
             },
             {
                 id: "fips",
                 alias: "Fips",
-                dataType: tableau.dataTypeEnum.int
+                dataType: tableau.dataTypeEnum.string
             },
             {
                 id: "cipcode",
                 alias: "CIP Code",
-                dataType: tableau.dataTypeEnum.int
+                dataType: tableau.dataTypeEnum.string
             },
             {
                 id: "award_level",
                 alias: "Award Level",
-                dataType: tableau.dataTypeEnum.int
+                dataType: tableau.dataTypeEnum.string
             },
             {
                 id: "majornum",
                 alias: "Major Number",
-                dataType: tableau.dataTypeEnum.int
+                dataType: tableau.dataTypeEnum.string
             },
             {
                 id: "sex",
@@ -73,7 +78,7 @@
             {
                 id: "awards",
                 alias: "Awards",
-                dataType: tableau.dataTypeEnum.string
+                dataType: tableau.dataTypeEnum.int
             }
         ];
 
@@ -86,14 +91,19 @@
         // Schema for Institution/College
         let institutionCols = [
             {
+                id: "unitid_year",
+                alias: "ID-year",
+                dataType: tableau.dataTypeEnum.string
+            },
+            {
                 id: "unitid",
                 alias: "ID",
-                dataType: tableau.dataTypeEnum.int,
+                dataType: tableau.dataTypeEnum.string
             },
             {
                 id: "year",
                 alias: "Year",
-                dataType: tableau.dataTypeEnum.int
+                dataType: tableau.dataTypeEnum.string
             },
             {
                 id: "inst_name",
@@ -118,12 +128,12 @@
             {
                 id: "hbcu",
                 alias: "HBCU",
-                dataType: tableau.dataTypeEnum.int,
+                dataType: tableau.dataTypeEnum.string
             },
             {
                 id: "tribal_college",
                 alias: "Tribal College",
-                dataType: tableau.dataTypeEnum.int,
+                dataType: tableau.dataTypeEnum.string
             }
         ];
         
@@ -133,8 +143,8 @@
             columns: institutionCols
         };
         // schema callback with standard connection
-        //schemaCallback([completionTable, institutionTable], [standardConnection]);
-        schemaCallback([completionTable, institutionTable]);
+        schemaCallback([completionTable, institutionTable], [standardConnection]);
+        //schemaCallback([completionTable, institutionTable]);
     };
     console.log('testing-v1');
     // Download the data
@@ -178,6 +188,7 @@
                             for (var i = 0, len = feat.length; i < len; i++) {
                                 
                                 tableData.push({
+                                "unitid_year": (feat[i].unitid).toString() + '-' + (feat[i].year).toString(),
                                 "unitid": feat[i].unitid,
                                 "year": feat[i].year,
                                 "fips": feat[i].fips,
@@ -246,6 +257,7 @@
                         if(feat.length > 0){
                             for (var i = 0, len = feat.length; i < len; i++) {
                                 tableData.push({
+                                "unitid_year": (feat[i].unitid).toString() + '-' + (feat[i].year).toString(),
                                 "unitid": feat[i].unitid,
                                 "year": feat[i].year,
                                 "inst_name": feat[i].inst_name,
