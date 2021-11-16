@@ -1,0 +1,135 @@
+* {
+    margin: 0;
+    padding: 0;
+} 
+
+body{
+    background-color: #F5F5F5;
+    margin: 0;
+    padding: 0;
+}
+
+.top-banner{
+    background-color: #000000;
+    opacity: 90%;
+    width: 1024px;
+    height: 136px;
+    border: 0px;
+    margin-top: 0px;
+}
+
+.logo{
+    margin-top: 20px;
+    margin-left: 30px;
+}
+
+.vertical{
+    border-right: 1px solid white;
+    position: absolute;
+    height: 100px;
+    margin-left: 20px;
+    margin-top: 20px;
+}
+
+.tagline{
+     
+    padding-left: 40px;
+    padding-top: 55px;
+    position: absolute;
+}
+
+.tagline-text{
+    color: #FFFFFF;
+    font-family: 'Lato', sans-serif;
+    font-size: 15px;
+}
+
+.header-image-container{
+    width: 1024px;
+    height: 304px;
+}
+
+.header-image{
+    opacity: 100%;
+}
+.content-section{
+    padding-top: 20px;
+    margin-left: 80px;
+}
+
+.title{
+    font-family: 'Lato', sans-serif;
+    font-size: 24px;
+    color: #1696D2;
+}
+
+.rules{
+    margin-top: 16px;
+}
+h5{
+    font-family: 'Lato', sans-serif;
+    font-size: 12px;
+}
+
+h6{
+    font-family: 'Lato', sans-serif;
+}
+
+.form-group select option{
+    padding-top: 16px;
+}
+
+input[type="text"] {
+    width: 236px;
+    height: 48px;
+    display: inline;
+    border-color: #D2D2D2;
+}
+
+.ui.fluid.dropdown {
+    display: inline-block;
+    width: 236px;
+    height: 48px;
+    min-width: 0;
+    border-radius: 0px;
+}
+.ui.multiple.dropdown>.text{
+    width: 236px;
+    height: 48px;
+    display: inline-block;
+    border-color: #D2D2D2;
+    font-family: 'Lato', sans-serif;
+    font-style: italic;
+    font-size: 14px;
+    font-weight: normal;
+}
+.ui.dropdown:not(.button)>.default.text {
+    color: #000000;
+}
+.ui.fluid.dropdown.years {
+    margin-left: 24px;
+    position: absolute;
+}
+
+.btn-fetch{
+    width: 132px;
+    height: 46px;
+    border: 1px solid #1696D2;
+    color: #1696D2;
+    font-family: 'Lato', Bold;
+    text-transform: uppercase;
+    font-size: 14px;
+    display: inline-block;
+    margin-left: 300px;
+    position: absolute;
+}
+
+.ui.fluid.dropdown.btn-fetch{
+    margin-top: 10px;
+}
+
+.ui.dropdown>.dropdown.icon{
+    width: 20px !important;
+    height: 12px;
+    color: #1696D2;
+}
