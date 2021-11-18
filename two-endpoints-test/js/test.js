@@ -4,37 +4,66 @@
 
     // Define the schema
     myConnector.getSchema = function(schemaCallback) {
+
+       //MM - code for standard connection - we need to decide which columns to join on
+            var standardConnection = {
+            "alias": "Joined awards data",
+            "tables": [{
+                "id": "completions",
+                "alias": "Institution Completions"
+            }, {
+                "id": "institution",
+                "alias": "Institution"
+            }],
+            "joins": [{
+                "left": {
+                    "tableAlias": "Institution Completions",
+                    "columnId": "unitid_year"
+                },
+                "right": {
+                    "tableAlias": "Institution",
+                    "columnId": "unitid_year"
+                },
+                "joinType": "left"
+            }]
+        };
+
         // Schema for Completion
         let completionCols = [
             {
+                id: "unitid_year",
+                alias: "ID-year",
+                dataType: tableau.dataTypeEnum.string
+            },
+            {
                 id: "unitid",
                 alias: "ID",
-                dataType: tableau.dataTypeEnum.int
+                dataType: tableau.dataTypeEnum.string
             }, 
             {
                 id: "year",
                 alias: "Year",
-                dataType: tableau.dataTypeEnum.int
+                dataType: tableau.dataTypeEnum.string
             },
             {
                 id: "fips",
                 alias: "Fips",
-                dataType: tableau.dataTypeEnum.int
+                dataType: tableau.dataTypeEnum.string
             },
             {
                 id: "cipcode",
                 alias: "CIP Code",
-                dataType: tableau.dataTypeEnum.int
+                dataType: tableau.dataTypeEnum.string
             },
             {
                 id: "award_level",
                 alias: "Award Level",
-                dataType: tableau.dataTypeEnum.int
+                dataType: tableau.dataTypeEnum.string
             },
             {
                 id: "majornum",
                 alias: "Major Number",
-                dataType: tableau.dataTypeEnum.int
+                dataType: tableau.dataTypeEnum.string
             },
             {
                 id: "sex",
@@ -49,7 +78,7 @@
             {
                 id: "awards",
                 alias: "Awards",
-                dataType: tableau.dataTypeEnum.string
+                dataType: tableau.dataTypeEnum.int
             }
         ];
 
@@ -62,9 +91,19 @@
         // Schema for Institution/College
         let institutionCols = [
             {
+                id: "unitid_year",
+                alias: "ID-year",
+                dataType: tableau.dataTypeEnum.string
+            },
+            {
                 id: "unitid",
                 alias: "ID",
-                dataType: tableau.dataTypeEnum.int,
+                dataType: tableau.dataTypeEnum.string
+            },
+            {
+                id: "year",
+                alias: "Year",
+                dataType: tableau.dataTypeEnum.string
             },
             {
                 id: "inst_name",
@@ -89,12 +128,12 @@
             {
                 id: "hbcu",
                 alias: "HBCU",
-                dataType: tableau.dataTypeEnum.int,
+                dataType: tableau.dataTypeEnum.string
             },
             {
                 id: "tribal_college",
                 alias: "Tribal College",
-                dataType: tableau.dataTypeEnum.int,
+                dataType: tableau.dataTypeEnum.string
             }
         ];
         
@@ -103,7 +142,8 @@
             alias: "Institution",
             columns: institutionCols
         };
-        schemaCallback([completionTable, institutionTable]);
+        //schemaCallback([completionTable, institutionTable]);
+        schemaCallback([completionTable, institutionTable], [standardConnection]);
     };
     console.log('testing-v1');
     // Download the data
@@ -125,9 +165,10 @@
                 var yearCount = 0;
                 var morePages = true;
                 var page = 1;
+                var tableData = [];
                 
                 //while (moreYears) {
-                while (morePages && page <= 50) {
+                while (morePages && moreYears) {
                     console.log('testing-v6');
     
                     //Manually handle asynchronicity
@@ -139,8 +180,8 @@
 
                     var nextPage = data.next;
                     
-                    var feat = data.results,
-                        tableData = [];
+                    var feat = data.results;
+                        //tableData = [];
                     var i = 0;
                     // Iterate over the JSON object
                     if (table.tableInfo.id == "completions") {
@@ -148,6 +189,7 @@
                             for (var i = 0, len = feat.length; i < len; i++) {
                                 
                                 tableData.push({
+                                "unitid_year": (feat[i].unitid).toString() + '-' + (feat[i].year).toString(),
                                 "unitid": feat[i].unitid,
                                 "year": feat[i].year,
                                 "fips": feat[i].fips,
@@ -161,6 +203,8 @@
                                 
                             }
                             if(nextPage == null && dateObj.yearRequested.length > 1) { //Check if we reach the page limit for the current page
+
+
                                 page = 1;
                                 yearCount++;
                                 console.log(`Pagee Counter: ${page}`);
@@ -168,6 +212,11 @@
                                 dateString = dateObj.yearRequested[yearCount]
                                 //dateString++;
                                 console.log(`Nextt year: ${dateString}`);
+
+                                if(dateString==undefined){
+                                    console.log("Finished loading all years")
+                                    moreYears=false;
+                                }
                             }/*else if(dateString == undefined || dateString == null){
                                 console.log('Break-User chose only one year');
                                 moreYears = false;
@@ -187,10 +236,11 @@
                         }
                         
                     }
-                    table.appendRows(tableData);
-                    doneCallback();
+
                 };
-                    console.log('table-1-done-rendering');
+                table.appendRows(tableData);
+                doneCallback();
+                console.log('table-1-done-rendering');
                 //};
                 break;
 
@@ -199,15 +249,17 @@
                 var yearCount = 0;
                 var morePages = true;
                 var page = 1;
-                while(morePages && page <= 3){
+                tableData = [];
+
+                while(morePages && moreYears){
                     apiCall = `https://educationdata.urban.org/api/v1/college-university/ipeds/directory/${dateString}/?fips=${fip}&cipcode=110000&page=${page}`;
                     console.log(`api${page}: ${apiCall}`);
                     var data = await fetch(apiCall).then(response => response.json());
 
                     var nextPage = data.next;
 
-                    var feat = data.results,
-                        tableData = [];
+                    var feat = data.results;
+                        //tableData = [];
                         
                     var i = 0;
 
@@ -216,7 +268,9 @@
                         if(feat.length > 0){
                             for (var i = 0, len = feat.length; i < len; i++) {
                                 tableData.push({
+                                "unitid_year": (feat[i].unitid).toString() + '-' + (feat[i].year).toString(),
                                 "unitid": feat[i].unitid,
+                                "year": dateString,
                                 "inst_name": feat[i].inst_name,
                                 "address": feat[i].address,
                                 "region": feat[i].region,
@@ -232,6 +286,11 @@
                                 console.log(`Yearr Counter: ${yearCount}`);
                                 dateString = dateObj.yearRequested[yearCount];
                                 console.log(`Nextt year: ${dateString}`);
+
+                                if(dateString==undefined){
+                                    console.log("Finished loading all years")
+                                    moreYears=false;
+                                }
                             }
                             else{
                                 page++;
@@ -247,9 +306,10 @@
                             morePages = false;
                         }
                     }
-                    table.appendRows(tableData);
-                    doneCallback();
+
                 };
+                table.appendRows(tableData);
+                doneCallback();
                 console.log('table-2-done-rendering');
                 break;
         };
