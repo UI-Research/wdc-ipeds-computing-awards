@@ -7,12 +7,16 @@ body{
     background-color: #F5F5F5;
     margin: 0;
     padding: 0;
+    border: 0;
 }
+
+
+
 
 .top-banner{
     background-color: #000000;
     opacity: 90%;
-    width: 1024px;
+    width: 100%;
     height: 136px;
     border: 0px;
     margin-top: 0px;
@@ -44,16 +48,13 @@ body{
     font-size: 15px;
 }
 
-.header-image-container{
-    width: 1024px;
+.header-image{
+    width: 100%;
     height: 304px;
 }
 
-.header-image{
-    opacity: 100%;
-}
-.content-section{
-    padding-top: 20px;
+section{
+    margin-top: 20px;
     margin-left: 80px;
 }
 
@@ -68,13 +69,18 @@ body{
 }
 h5{
     font-family: 'Lato', sans-serif;
-    font-size: 12px;
+    font-weight: 700;
+    font-size: 1rem;
 }
 
 h6{
     font-family: 'Lato', sans-serif;
+    font-size: 0.8rem;
 }
 
+.form-group{
+    margin-top: 16px;
+}
 .form-group select option{
     padding-top: 16px;
 }
@@ -86,12 +92,20 @@ input[type="text"] {
     border-color: #D2D2D2;
 }
 
+
 .ui.fluid.dropdown {
     display: inline-block;
     width: 236px;
     height: 48px;
     min-width: 0;
     border-radius: 0px;
+    color: #000000;
+    font-family: 'Lato', sans-serif;
+    font-size: 14px;
+}
+
+.ui.fluid.dropdown>.dropdown.icon{
+    color: #1696D2;
 }
 .ui.multiple.dropdown>.text{
     width: 236px;
@@ -106,10 +120,7 @@ input[type="text"] {
 .ui.dropdown:not(.button)>.default.text {
     color: #000000;
 }
-.ui.fluid.dropdown.years {
-    margin-left: 24px;
-    position: absolute;
-}
+
 
 .btn-fetch{
     width: 132px;
@@ -120,7 +131,7 @@ input[type="text"] {
     text-transform: uppercase;
     font-size: 14px;
     display: inline-block;
-    margin-left: 300px;
+    margin-left: 30px;
     position: absolute;
 }
 
@@ -131,5 +142,40 @@ input[type="text"] {
 .ui.dropdown>.dropdown.icon{
     width: 20px !important;
     height: 12px;
+    color: #1696D2;
+}
+
+
+
+.bootstrap-select>.dropdown-toggle {
+    height: 48px;
+    background-color: #FFFFFF;
+    border: 1px solid #ced4da;
+    border-radius: 0px;;
+}
+
+.dropdown.bootstrap-select.show-tick{
+    margin-left: 24px !important;
+}
+.filter-option-inner-inner{
+    color: #000000;
+    font-family: 'Lato', sans-serif;
+    font-size: 14px;
+    margin-top: 5px;
+    margin-left: 5px;
+}
+
+.bootstrap-select>.dropdown-toggle.bs-placeholder{
+    color: #1696D2;
+}
+
+.check-mark {
+    font-size: 12px;
+    margin-top: 2px;
+    color: #1696D2;
+    position: relative;
+}
+
+.dropdown-menu li.selected > a.selected {
     color: #1696D2;
 }
