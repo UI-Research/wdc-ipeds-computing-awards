@@ -202,7 +202,7 @@
                                 });
                                 
                             }
-                            if(nextPage == null && dateObj.yearRequested.length > 1) { //Check if we reach the page limit for the current page
+                            if(nextPage == null) { //Check if we reach the page limit for the current page
 
 
                                 page = 1;
@@ -279,7 +279,7 @@
                                 "tribal_college": feat[i].tribal_college,
                                 });
                             }
-                            if(nextPage == null && dateObj.yearRequested.length > 1) { //Check if we reach the page limit for the current page
+                            if(nextPage == null) { //Check if we reach the page limit for the current page
                                 page = 1;
                                 yearCount++;
                                 console.log(`Pagee Counter: ${page}`);
@@ -318,10 +318,23 @@
     tableau.registerConnector(myConnector);
     // Create event listeners for when the user submits the form
     $(document).ready(function() {
+        $('#submitButton').prop("disabled", true);
+
+        $('select').change(function(){
+            //var selected_option = $(this).find(":selected").val();
+            var years = $('#choose').val();
+            var state = $('#state-fip').val();
+            console.log(`selected-years: ${years}`);
+            console.log(`selected-state: ${state}`);
+            //console.log(`selected: ${selected_option}`);
+            if (state !="" & years !="") {
+                //console.log($('#choose').val().length);
+                //$('.rules').hide();
+                $('#submitButton').prop("disabled", false);
+            }
+          });
+        
         $("#submitButton").click(function() {
-           /* var states = document.getElementById('choose').selectedOptions;
-            var values = Array.from(states).map(({value}) => value);
-            console.log(`values: ${values}`);*/
             var dateObj = {
                 yearRequested: $('#choose').val(),
                 fipRequested:  $('#state-fip').val().trim(),
