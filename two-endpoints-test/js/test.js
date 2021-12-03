@@ -319,6 +319,7 @@
     // Create event listeners for when the user submits the form
     $(document).ready(function() {
         $('#submitButton').prop("disabled", true);
+        document.getElementById('submitButton').style.backgroundColor = '#efefef'
 
         $('select').change(function(){
             //var selected_option = $(this).find(":selected").val();
@@ -331,6 +332,13 @@
                 //console.log($('#choose').val().length);
                 //$('.rules').hide();
                 $('#submitButton').prop("disabled", false);
+                document.getElementById('submitButton').style.backgroundColor = 'White';
+                document.getElementById('error-message').style.visibility = 'hidden';      // Hide
+
+            } else {
+                $('#submitButton').prop("disabled", true);
+                document.getElementById('submitButton').style.backgroundColor = '#efefef'
+                document.getElementById('error-message').style.visibility = 'visible';
             }
           });
         

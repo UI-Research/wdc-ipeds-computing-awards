@@ -139,7 +139,7 @@
                     </select>
                     
                     
-                    <select id="choose" class="selectpicker" multiple data-max-options="3" title="Select (Year)s">
+                    <select id="choose" class="selectpicker" multiple data-max-options="3" title="Select Year(s)">
                         
                         <option value="">  </option>
                         <option value="1991"> 1991 </option>
@@ -173,11 +173,14 @@
                     </select>
                     <button type = "button" id = "submitButton" class = "btn-fetch">Get Data</button>
             </form>
+
+                <div class="rules" id="error-message">
+                    <h6 style="color:red;">You must select one state and up to three years.</h6>
+                </div>
             <!--<h6 class="rules">Select a state, and up to three years.</h6>-->
             <!--<input type="text" class="form-control form-control-lg" id="year" placeholder="2015">-->
             </section>
 
-                <div id="errorMsg"></div>
             </div>
         </div>
     </div>
