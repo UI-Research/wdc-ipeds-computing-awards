@@ -10,7 +10,7 @@ Want to contribute to the WDC? See our [contribution guidelines](http://tableau.
 # tableau-wdc-prototypes
 
 # how to run locally after cloning repository
-2. In the top level directory run `npm install --production`. This should download the node_modules folder to your local repository.
-3. Run `npm start`. This should start the test web server.
-4. Open a browser and navigate to the following URL: `http://localhost:8888/Simulator/index.html`
-Note: If you have issues with running the npm commands, you might want to try deleting the existing `package.json` and `package-lock.json` files and downloading and replacing them from https://github.com/tableau/webdataconnector/. Then try these steps again.
+1. In the top level directory run `npm install --production`. This should download the node_modules folder to your local repository.
+2. Run `npm start`. This should start the test web server.
+3. Open a browser and navigate to the following URL: `http://localhost:8888/Simulator/index.html`
+#### Note: If you have issues with running the npm commands, you might want to try deleting the existing `package.json` and `package-lock.json` files and downloading and replacing them from https://github.com/tableau/webdataconnector/. Then try these steps again.
