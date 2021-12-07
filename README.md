@@ -16,7 +16,7 @@ Want to contribute to the WDC? See our [contribution guidelines](http://tableau.
 #### Note: If you have issues with running the npm commands, you might want to try deleting the existing `package.json` and `package-lock.json` files and downloading and replacing them from https://github.com/tableau/webdataconnector/. Then try these steps again.
 
 ### The default branch was renamed from main to staging. In order to rename in your local environment, run:
-git branch -m main staging
-git fetch origin
-git branch -u origin/staging staging
-git remote set-head origin -a
+- `git branch -m main staging`
+- `git fetch origin`
+- `git branch -u origin/staging staging`
+- `git remote set-head origin -a`
