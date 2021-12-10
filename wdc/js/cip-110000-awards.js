@@ -251,6 +251,29 @@
                 var page = 1;
                 tableData = [];
 
+                console.log("initialize label dictionary")
+                variable_list = ["census_region","inst_control"]
+                var label_dictionary = {}
+                variable_list.forEach(item =>
+                    label_dictionary[item] = {}
+                );
+
+                console.log(label_dictionary)
+
+                console.log("initialize label dictionary")
+                var metadata_apiCall = "https://educationdata-stg.urban.org/api/v1/api-values/";
+                var metadata = await fetch(metadata_apiCall).then(response => response.json());
+                var metadata_feat = metadata.results;
+
+
+                metadata_feat.forEach(function (arrayItem) {
+                    if(variable_list.includes(arrayItem.format_name)){
+                        label_dictionary[arrayItem.format_name][arrayItem.code] = arrayItem.code_label.split(" - ")[1]
+                    };
+                });
+
+                console.log(label_dictionary);
+
                 while(morePages && moreYears){
                     apiCall = `https://educationdata.urban.org/api/v1/college-university/ipeds/directory/${dateString}/?fips=${fip}&cipcode=110000&page=${page}`;
                     console.log(`api${page}: ${apiCall}`);
@@ -273,8 +296,8 @@
                                 "year": dateString,
                                 "inst_name": feat[i].inst_name,
                                 "address": feat[i].address,
-                                "region": feat[i].region,
-                                "inst_control": feat[i].inst_control,
+                                "region": label_dictionary["census_region"][feat[i].region],
+                                "inst_control": label_dictionary["inst_control"][feat[i].inst_control],
                                 "hbcu": feat[i].hbcu,
                                 "tribal_college": feat[i].tribal_college,
                                 });
