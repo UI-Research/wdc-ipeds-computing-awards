@@ -206,18 +206,15 @@
         //schemaCallback([completionTable, institutionTable]);
         schemaCallback([completionTable, institutionTable], [standardConnection]);
     };
-    console.log('testing-v1');
     // Download the data
     myConnector.getData = async function(table, doneCallback){
         var dateObj = JSON.parse(tableau.connectionData);
         var dateString = dateObj.yearRequested[0];
-        console.log(`date string: ${dateString}`);
+        //console.log(`date string: ${dateString}`);
         var yearMax = dateObj.yearRequested.length;
-        console.log(`Year Length: ${yearMax}`);
+        //console.log(`Year Length: ${yearMax}`);
         var fip = dateObj.fipRequested;
-        console.log(`dateString: ${dateString}`);
-        
-        console.log(`fip: ${fip}`);
+        //console.log(`fip: ${fip}`);
         
         // Branch logic based on the table ID
         switch(table.tableInfo.id) {
@@ -253,13 +250,10 @@
                 
                 //while (moreYears) {
                 while (morePages && moreYears) {
-                    console.log('testing-v6');
-    
                     //Manually handle asynchronicity
                     
                     apiCall = `https://educationdata.urban.org/api/v1/college-university/ipeds/completions-cip-2/${dateString}/?fips=${fip}&cipcode=110000&page=${page}`;
-                    console.log(`api${page}: ${apiCall}`);
-                    
+
                     var data = await fetch(apiCall).then(response => response.json());
 
                     var nextPage = data.next;
@@ -289,15 +283,12 @@
 
 
                                 page = 1;
+                                console.log("Pulled page " + page " for " yearCount);
                                 yearCount++;
-                                console.log(`Pagee Counter: ${page}`);
-                                console.log(`Yearr Counter: ${yearCount}`);
                                 dateString = dateObj.yearRequested[yearCount]
-                                //dateString++;
-                                console.log(`Nextt year: ${dateString}`);
 
                                 if(dateString==undefined){
-                                    console.log("Finished loading all years")
+                                    //console.log("Finished loading all years")
                                     moreYears=false;
                                 }
                             }/*else if(dateString == undefined || dateString == null){
@@ -323,7 +314,7 @@
                 };
                 table.appendRows(tableData);
                 doneCallback();
-                console.log('table-1-done-rendering');
+                //console.log('table-1-done-rendering');
                 //};
                 break;
 
@@ -359,7 +350,7 @@
 
                 while(morePages && moreYears){
                     apiCall = `https://educationdata.urban.org/api/v1/college-university/ipeds/directory/${dateString}/?fips=${fip}&cipcode=110000&page=${page}`;
-                    console.log(`api${page}: ${apiCall}`);
+                    //console.log(`api${page}: ${apiCall}`);
                     var data = await fetch(apiCall).then(response => response.json());
 
                     var nextPage = data.next;
@@ -393,14 +384,12 @@
                             }
                             if(nextPage == null) { //Check if we reach the page limit for the current page
                                 page = 1;
+                                console.log("Pulled page " + page " for " yearCount);
                                 yearCount++;
-                                console.log(`Pagee Counter: ${page}`);
-                                console.log(`Yearr Counter: ${yearCount}`);
                                 dateString = dateObj.yearRequested[yearCount];
-                                console.log(`Nextt year: ${dateString}`);
 
                                 if(dateString==undefined){
-                                    console.log("Finished loading all years")
+                                    //console.log("Finished loading all years")
                                     moreYears=false;
                                 }
                             }
@@ -422,7 +411,7 @@
                 };
                 table.appendRows(tableData);
                 doneCallback();
-                console.log('table-2-done-rendering');
+                //console.log('table-2-done-rendering');
                 break;
         };
     };
@@ -437,12 +426,9 @@
             //var selected_option = $(this).find(":selected").val();
             var years = $('#choose').val();
             var state = $('#state-fip').val();
-            console.log(`selected-years: ${years}`);
-            console.log(`selected-state: ${state}`);
-            //console.log(`selected: ${selected_option}`);
+            //console.log(`selected-years: ${years}`);
+            //console.log(`selected-state: ${state}`);
             if (state !="" & years !="") {
-                //console.log($('#choose').val().length);
-                //$('.rules').hide();
                 $('#submitButton').prop("disabled", false);
                 document.getElementById('submitButton').style.backgroundColor = 'White';
                 document.getElementById('error-message').style.visibility = 'hidden';      // Hide
@@ -466,7 +452,6 @@
             } else {
                 $('#errorMsg').html("Enter a valid year. For example, 2018.");
             }
-            console.log('testing-v6');
         });
     });
 })();
