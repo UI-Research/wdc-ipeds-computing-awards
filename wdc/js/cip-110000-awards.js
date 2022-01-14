@@ -283,7 +283,7 @@
 
 
                                 page = 1;
-                                console.log("Pulled page " + page " for " yearCount);
+                                console.log("Pulled page " + page + " for " + yearCount);
                                 yearCount++;
                                 dateString = dateObj.yearRequested[yearCount]
 
@@ -384,7 +384,7 @@
                             }
                             if(nextPage == null) { //Check if we reach the page limit for the current page
                                 page = 1;
-                                console.log("Pulled page " + page " for " yearCount);
+                                console.log("Pulled page " + page + " for " + yearCount);
                                 yearCount++;
                                 dateString = dateObj.yearRequested[yearCount];
 
