@@ -43,11 +43,14 @@
             </header>
             <section class="content-section">
                 <div class="title">
-                    <h3>Education Data Portal Web Data Connector</h3>
+                    <h3> Education Data Portal Web Data Connector </h3>
+                    <h3> IPEDS Awards for CIP 11 </h3>
                 </div>
                 <div class="rules">
-                    <h5>Select one state and up to three years for which you'd like to view higher education data.</h5>
-                    <h6>Once you retrieve your dataset, you will be able to filter it further.</h6>
+                    <h5>Select one state and up to three years for which you'd like to view awards and institution data.</h5>
+                    <h6>"awards" table includes Awards data for CIP 11</h6>
+                    <h6>"institution" table includes institution related data</h6>
+                    <h6>"Joined awards data" table is a left join between "awards" (left) and "institution" (right)</h6>
                 </div>
                 <form class="form form-group">
                         
@@ -55,18 +58,18 @@
                         <option value=""> Select State </option>
                         <option value="1"> Alabama </option>
                         <option value="2"> Alaska </option>
-                        <option value="3"> American Samoa </option>
+                        <!-- <option value="3"> American Samoa </option> -->
                         <option value="4"> Arizona </option>
                         <option value="5"> Arkansas </option>
                         <option value="6"> California </option>
-                        <option value="7"> Canal Zone </option>
+                        <!-- <option value="7"> Canal Zone </option> -->
                         <option value="8"> Colorado </option>
                         <option value="9"> Connecticut </option>
                         <option value="10"> Delaware </option>
                         <option value="11"> District of Columbia </option>
                         <option value="12"> Florida </option>
                         <option value="13"> Georgia </option>
-                        <option value="14"> Guam </option>
+                        <!-- <option value="14"> Guam </option> -->
                         <option value="15"> Hawaii </option>
                         <option value="16"> Idaho </option>
                         <option value="17"> Illinois </option>
@@ -95,7 +98,7 @@
                         <option value="40"> Oklahoma </option>
                         <option value="41"> Oregon </option>
                         <option value="42"> Pennsylvania </option>
-                        <option value="43"> Puerto Rico </option>
+                        <!-- <option value="43"> Puerto Rico </option> -->
                         <option value="44"> Rhode Island </option>
                         <option value="45"> South Carolina </option>
                         <option value="46"> South Dakota </option>
@@ -104,30 +107,30 @@
                         <option value="49"> Utah </option>
                         <option value="50"> Vermont </option>
                         <option value="51"> Virginia </option>
-                        <option value="52"> Virgin islands of the US </option>
+                        <!-- <option value="52"> Virgin islands of the US </option> -->
                         <option value="53"> Washington </option>
                         <option value="54"> West Virginia </option>
                         <option value="55"> Wisconsin </option>
                         <option value="56"> Wyoming </option>
-                        <option value="58"> Department of Defense Dependent Schools (overseas) </option>
-                        <option value="59"> Bureau of Indian Education </option>
+                        <!-- <option value="58"> Department of Defense Dependent Schools (overseas) </option>
+                        <option value="59"> Bureau of Indian Education </option> -->
                         <option value="60"> American Samoa </option>
-                        <option value="61"> Department of Defense Dependent Schools (domestic) </option>
-                        <option value="63"> Department of Defense Education Activity </option>
+                        <!-- <option value="61"> Department of Defense Dependent Schools (domestic) </option>
+                        <option value="63"> Department of Defense Education Activity </option> -->
                         <option value="64"> Federated States of Micronesia </option>
-                        <option value="65"> Mariana Islands waters (including Guam) </option>
+                        <!-- <option value="65"> Mariana Islands waters (including Guam) </option> -->
                         <option value="66"> Guam </option>
-                        <option value="67"> Johnston Atoll </option>
+                        <!-- <option value="67"> Johnston Atoll </option> -->
                         <option value="68"> Marshall Islands </option>
                         <option value="69"> Nothern Mariana Islands </option>
                         <option value="70"> Palau </option>
-                        <option value="71"> Midway Islands </option>
+                        <!-- <option value="71"> Midway Islands </option> -->
                         <option value="72"> Puerto Rico </option>
-                        <option value="74"> US Minor Outlying Islands </option>
+                        <!-- <option value="74"> US Minor Outlying Islands </option>
                         <option value="75"> Atlantic coast from North Carolina to Florida, and the coasts of Puerto Rico and Virgin Islands </option>
-                        <option value="76"> Navassa Islands </option>
+                        <option value="76"> Navassa Islands </option> -->
                         <option value="78"> Virgin Islands of the US </option>
-                        <option value="79"> Wake Island </option>
+                        <!-- <option value="79"> Wake Island </option>
                         <option value="81"> Baker Island </option>
                         <option value="84"> Howland Island </option>
                         <option value="86"> Jarvis Island </option>
@@ -135,41 +138,43 @@
                         <option value="95"> Palmyra Atoll </option>
                         <option value="-1"> Missing/not reported </option>
                         <option value="-2"> Not applicable </option>
-                        <option value="-3"> Suppressed data </option>
+                        <option value="-3"> Suppressed data </option> -->
                     </select>
                     
                     
                     <select id="choose" class="selectpicker" multiple data-max-options="3" title="Select Year(s)">
                         
                         <option value="">  </option>
-                        <option value="1991"> 1991 </option>
-                        <option value="1992"> 1992 </option>
-                        <option value="1993"> 1993 </option>
-                        <option value="1994"> 1994 </option>
-                        <option value="1995"> 1995 </option>
-                        <option value="1996"> 1996 </option>
-                        <option value="1997"> 1997 </option>
-                        <option value="1998"> 1998 </option>
-                        <option value="1999"> 1999 </option>
-                        <option value="2000"> 2000 </option>
-                        <option value="2001"> 2001 </option>
-                        <option value="2002"> 2002 </option>
-                        <option value="2003"> 2003 </option>
-                        <option value="2004"> 2004 </option>
-                        <option value="2005"> 2005 </option>
-                        <option value="2006"> 2006 </option>
-                        <option value="2007"> 2007 </option>
-                        <option value="2008"> 2008 </option>
-                        <option value="2009"> 2009 </option>
-                        <option value="2010"> 2010 </option>
-                        <option value="2011"> 2011 </option>
-                        <option value="2012"> 2012 </option>
-                        <option value="2013"> 2013 </option>
-                        <option value="2014"> 2014 </option>
-                        <option value="2015"> 2015 </option>
-                        <option value="2016"> 2016 </option>
-                        <option value="2017"> 2017 </option>
+                        <option value="2019"> 2019 </option>
                         <option value="2018"> 2018 </option>
+                        <option value="2017"> 2017 </option>
+                        <option value="2016"> 2016 </option>
+                        <option value="2015"> 2015 </option>
+                        <option value="2014"> 2014 </option>
+                        <option value="2013"> 2013 </option>
+                        <option value="2012"> 2012 </option>
+                        <option value="2011"> 2011 </option>
+                        <option value="2010"> 2010 </option>
+                        <option value="2009"> 2009 </option>
+                        <option value="2008"> 2008 </option>
+                        <option value="2007"> 2007 </option>
+                        <option value="2006"> 2006 </option>
+                        <option value="2005"> 2005 </option>
+                        <option value="2004"> 2004 </option>
+                        <option value="2003"> 2003 </option>
+                        <option value="2002"> 2002 </option>
+                        <option value="2001"> 2001 </option>
+                        <option value="2000"> 2000 </option>
+                        <option value="1999"> 1999 </option>
+                        <option value="1998"> 1998 </option>
+                        <option value="1997"> 1997 </option>
+                        <option value="1996"> 1996 </option>
+                        <option value="1995"> 1995 </option>
+                        <option value="1994"> 1994 </option>
+                        <option value="1993"> 1993 </option>
+                        <option value="1992"> 1992 </option>
+                        <option value="1991"> 1991 </option>
+
                     </select>
                     <button type = "button" id = "submitButton" class = "btn-fetch">Get Data</button>
             </form>
