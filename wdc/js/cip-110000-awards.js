@@ -265,20 +265,20 @@
                     if (table.tableInfo.id == "awards") {
                         if (feat.length > 0){
                             for (var i = 0, len = feat.length; i < len; i++) {
-                                
-                                tableData.push({
-                                "unitid_year": (feat[i].unitid).toString() + '-' + (feat[i].year).toString(),
-                                "unitid": feat[i].unitid,
-                                "year": feat[i].year,
-                                "cipcode": feat[i].cipcode,
-                                "award_level": label_dictionary["award_level"][feat[i].award_level],
-                                "majornum": label_dictionary["majornum"][feat[i].majornum],
-                                "sex": label_dictionary["sex"][feat[i].sex],
-                                "race": label_dictionary["race"][feat[i].race],
-                                "awards": feat[i].awards,
-                                });
-                                
-                            }
+                                if(! (label_dictionary["sex"][feat[i].sex]=="Total" || label_dictionary["race"][feat[i].race]=="Total")) {
+                                    tableData.push({
+                                    "unitid_year": (feat[i].unitid).toString() + '-' + (feat[i].year).toString(),
+                                    "unitid": feat[i].unitid,
+                                    "year": feat[i].year,
+                                    "cipcode": feat[i].cipcode,
+                                    "award_level": label_dictionary["award_level"][feat[i].award_level],
+                                    "majornum": label_dictionary["majornum"][feat[i].majornum],
+                                    "sex": label_dictionary["sex"][feat[i].sex],
+                                    "race": label_dictionary["race"][feat[i].race],
+                                    "awards": feat[i].awards,
+                                    });
+                                };
+                            };
                             if(nextPage == null) { //Check if we reach the page limit for the current page
 
 
