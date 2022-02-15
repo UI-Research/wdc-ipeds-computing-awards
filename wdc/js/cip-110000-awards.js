@@ -266,15 +266,47 @@
                         if (feat.length > 0){
                             for (var i = 0, len = feat.length; i < len; i++) {
                                 if(! (label_dictionary["sex"][feat[i].sex]=="Total" || label_dictionary["race"][feat[i].race]=="Total")) {
+
+                                    // clean data
+                                    if(feat[i].unitid != null && feat[i].year != null){
+                                        unitid_year = (feat[i].unitid).toString() + '-' + (feat[i].year).toString();
+                                    } else {
+                                        unitid_year = null;
+                                    };
+
+                                    if(feat[i].award_level != null){
+                                        award_level_cleaned = label_dictionary["award_level"][feat[i].award_level];
+                                    } else {
+                                        award_level_cleaned = null;
+                                    };
+
+                                    if(feat[i].majornum != null){
+                                        majornum_cleaned = label_dictionary["majornum"][feat[i].majornum];
+                                    } else {
+                                        majornum_cleaned = null;
+                                    };
+
+                                    if(feat[i].sex != null){
+                                        sex_cleaned = label_dictionary["sex"][feat[i].sex];
+                                    } else {
+                                        sex_cleaned = null;
+                                    };
+
+                                    if(feat[i].race != null){
+                                        race_cleaned = label_dictionary["race"][feat[i].race];
+                                    } else {
+                                        race_cleaned = null;
+                                    };
+
                                     tableData.push({
-                                    "unitid_year": (feat[i].unitid).toString() + '-' + (feat[i].year).toString(),
+                                    "unitid_year": unitid_year,
                                     "unitid": feat[i].unitid,
                                     "year": feat[i].year,
                                     "cipcode": feat[i].cipcode,
-                                    "award_level": label_dictionary["award_level"][feat[i].award_level],
-                                    "majornum": label_dictionary["majornum"][feat[i].majornum],
-                                    "sex": label_dictionary["sex"][feat[i].sex],
-                                    "race": label_dictionary["race"][feat[i].race],
+                                    "award_level": award_level_cleaned,
+                                    "majornum": majornum_cleaned,
+                                    "sex": sex_cleaned,
+                                    "race": race_cleaned,
                                     "awards": feat[i].awards,
                                     });
                                 };
@@ -364,19 +396,64 @@
                     if (table.tableInfo.id == "institution") {
                         if(feat.length > 0){
                             for (var i = 0, len = feat.length; i < len; i++) {
+
+                                // clean data
+                                if(feat[i].unitid != null && feat[i].year != null){
+                                    unitid_year = (feat[i].unitid).toString() + '-' + (feat[i].year).toString();
+                                } else {
+                                    unitid_year = null;
+                                };
+
+                                if(feat[i].zip != null){
+                                    zip_cleaned = (feat[i].zip).toString().substring(0,5);
+                                } else{
+                                    zip_cleaned = null;
+                                };
+
+                                if(feat[i].county_fips != null){
+                                    county_fips_cleaned = zeroPad(feat[i].county_fips, 5);
+                                } else{
+                                    county_fips_cleaned = null;
+                                };
+
+                                if(feat[i].region != null){
+                                    region_cleaned = label_dictionary["region"][feat[i].region];
+                                } else{
+                                    region_cleaned = null;
+                                };
+
+                                if(feat[i].congress_district_id != null){
+                                    congress_district_id_cleaned = Number(((feat[i].congress_district_id).toString()).slice(-2)).toString();
+                                } else{
+                                    congress_district_id_cleaned = null;
+                                };
+
+                                if(feat[i].inst_control != null){
+                                    inst_control_cleaned = label_dictionary["inst_control"][feat[i].inst_control];
+                                } else{
+                                    inst_control_cleaned = null;
+                                };
+
+                                if(feat[i].institution_level != null){
+                                    institution_level_cleaned = label_dictionary["institution_level"][feat[i].institution_level];
+                                } else{
+                                    institution_level_cleaned = null;
+                                };
+
+
                                 tableData.push({
-                                "unitid_year": (feat[i].unitid).toString() + '-' + (feat[i].year).toString(),
+                                "unitid_year": unitid_year,
                                 "unitid": feat[i].unitid,
                                 "year": feat[i].year,
                                 "inst_name": feat[i].inst_name,
                                 "state_abbr": feat[i].state_abbr,
-                                "zip": (feat[i].zip).toString().substring(0,5),
-                                "county_fips": zeroPad(feat[i].county_fips, 5),
-                                "region": label_dictionary["region"][feat[i].region],
+                                "zip": zip_cleaned,
+                                "county_fips": county_fips_cleaned,
+                                "region": region_cleaned,
                                 "cbsa": feat[i].cbsa,
-                                "congress_district_id": Number(((feat[i].congress_district_id).toString()).slice(-2)).toString(),
-                                "inst_control": label_dictionary["inst_control"][feat[i].inst_control],
-                                "institution_level": label_dictionary["institution_level"][feat[i].institution_level],
+                                "congress_district_id": congress_district_id_cleaned,
+                                "inst_control": inst_control_cleaned,
+                                "institution_level": institution_level_cleaned,
                                 "hbcu": feat[i].hbcu,
                                 "tribal_college": feat[i].tribal_college,
                                 "city": feat[i].city,
@@ -384,7 +461,7 @@
                             }
                             if(nextPage == null) { //Check if we reach the page limit for the current page
                                 page = 1;
-                                console.log("Pulled page " + page + " for " + yearCount);
+                                console.log("Pulled page " + page + " for " + dateString);
                                 yearCount++;
                                 dateString = dateObj.yearRequested[yearCount];
 
