@@ -33,7 +33,7 @@
 
         var var_description = {};
         var var_label = {};
-        var variable_metadata = await fetch('https://educationdata-stg.urban.org/api/v1/api-variables/')
+        var variable_metadata = await fetch('https://educationdata-stg.urban.org/api/v1/api-variables/?mode=tableauwdc')
             .then(response => response.json());
         var variable_metadata_feat = variable_metadata.results;
         variable_metadata_feat.forEach(function (arrayItem) {
@@ -234,7 +234,7 @@
                 );
 
                 // metadata api call
-                var metadata_apiCall = "https://educationdata-stg.urban.org/api/v1/api-values/";
+                var metadata_apiCall = "https://educationdata-stg.urban.org/api/v1/api-values/?mode=tableauwdc";
                 var metadata = await fetch(metadata_apiCall).then(response => response.json());
                 var metadata_feat = metadata.results;
 
@@ -253,7 +253,7 @@
                 while (morePages && moreYears) {
                     //Manually handle asynchronicity
                     
-                    apiCall = `https://educationdata.urban.org/api/v1/college-university/ipeds/completions-cip-2/${dateString}/?fips=${fip}&cipcode=110000&page=${page}`;
+                    apiCall = `https://educationdata.urban.org/api/v1/college-university/ipeds/completions-cip-2/${dateString}/?fips=${fip}&cipcode=110000&page=${page}&mode=tableauwdc`;
 
                     var data = await fetch(apiCall).then(response => response.json());
 
@@ -372,7 +372,7 @@
                 );
 
                 // metadata api call
-                var metadata_apiCall = "https://educationdata-stg.urban.org/api/v1/api-values/";
+                var metadata_apiCall = "https://educationdata-stg.urban.org/api/v1/api-values/?mode=tableauwdc";
                 var metadata = await fetch(metadata_apiCall).then(response => response.json());
                 var metadata_feat = metadata.results;
 
@@ -388,7 +388,7 @@
                 });
 
                 while(morePages && moreYears){
-                    apiCall = `https://educationdata.urban.org/api/v1/college-university/ipeds/directory/${dateString}/?fips=${fip}&cipcode=110000&page=${page}`;
+                    apiCall = `https://educationdata.urban.org/api/v1/college-university/ipeds/directory/${dateString}/?fips=${fip}&cipcode=110000&page=${page}&mode=tableauwdc`;
                     //console.log(`api${page}: ${apiCall}`);
                     var data = await fetch(apiCall).then(response => response.json());
 
