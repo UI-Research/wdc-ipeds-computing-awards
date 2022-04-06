@@ -7,6 +7,7 @@
     // Define the schema
     myConnector.getSchema = async function(schemaCallback) {
 
+        // Standard connection specifies pre-joined tables
         var standardConnection = {
             "alias": "Joined awards data",
             "tables": [{
@@ -32,7 +33,7 @@
 
         var var_description = {};
         var var_label = {};
-        var variable_metadata = await fetch('https://educationdata-stg.urban.org/api/v1/api-variables/')
+        var variable_metadata = await fetch('https://educationdata-stg.urban.org/api/v1/api-variables/?mode=tableauwdc')
             .then(response => response.json());
         var variable_metadata_feat = variable_metadata.results;
         variable_metadata_feat.forEach(function (arrayItem) {
@@ -233,7 +234,7 @@
                 );
 
                 // metadata api call
-                var metadata_apiCall = "https://educationdata-stg.urban.org/api/v1/api-values/";
+                var metadata_apiCall = "https://educationdata-stg.urban.org/api/v1/api-values/?mode=tableauwdc";
                 var metadata = await fetch(metadata_apiCall).then(response => response.json());
                 var metadata_feat = metadata.results;
 
@@ -252,7 +253,7 @@
                 while (morePages && moreYears) {
                     //Manually handle asynchronicity
                     
-                    apiCall = `https://educationdata.urban.org/api/v1/college-university/ipeds/completions-cip-2/${dateString}/?fips=${fip}&cipcode=110000&page=${page}`;
+                    apiCall = `https://educationdata.urban.org/api/v1/college-university/ipeds/completions-cip-2/${dateString}/?fips=${fip}&cipcode=110000&page=${page}&mode=tableauwdc`;
 
                     var data = await fetch(apiCall).then(response => response.json());
 
@@ -268,30 +269,36 @@
                                 if(! (label_dictionary["sex"][feat[i].sex]=="Total" || label_dictionary["race"][feat[i].race]=="Total")) {
 
                                     // clean data
+
+                                    // create unitid_year
                                     if(feat[i].unitid != null && feat[i].year != null){
                                         unitid_year = (feat[i].unitid).toString() + '-' + (feat[i].year).toString();
                                     } else {
                                         unitid_year = null;
                                     };
 
+                                    // recode award_level using metadata labels
                                     if(feat[i].award_level != null){
                                         award_level_cleaned = label_dictionary["award_level"][feat[i].award_level];
                                     } else {
                                         award_level_cleaned = null;
                                     };
 
+                                    // recode majornum using metadata labels
                                     if(feat[i].majornum != null){
                                         majornum_cleaned = label_dictionary["majornum"][feat[i].majornum];
                                     } else {
                                         majornum_cleaned = null;
                                     };
 
+                                    // recode sex using metadata labels
                                     if(feat[i].sex != null){
                                         sex_cleaned = label_dictionary["sex"][feat[i].sex];
                                     } else {
                                         sex_cleaned = null;
                                     };
 
+                                    // recode race using metadata labels
                                     if(feat[i].race != null){
                                         race_cleaned = label_dictionary["race"][feat[i].race];
                                     } else {
@@ -365,7 +372,7 @@
                 );
 
                 // metadata api call
-                var metadata_apiCall = "https://educationdata-stg.urban.org/api/v1/api-values/";
+                var metadata_apiCall = "https://educationdata-stg.urban.org/api/v1/api-values/?mode=tableauwdc";
                 var metadata = await fetch(metadata_apiCall).then(response => response.json());
                 var metadata_feat = metadata.results;
 
@@ -381,7 +388,7 @@
                 });
 
                 while(morePages && moreYears){
-                    apiCall = `https://educationdata.urban.org/api/v1/college-university/ipeds/directory/${dateString}/?fips=${fip}&cipcode=110000&page=${page}`;
+                    apiCall = `https://educationdata.urban.org/api/v1/college-university/ipeds/directory/${dateString}/?fips=${fip}&cipcode=110000&page=${page}&mode=tableauwdc`;
                     //console.log(`api${page}: ${apiCall}`);
                     var data = await fetch(apiCall).then(response => response.json());
 
@@ -397,43 +404,51 @@
                         if(feat.length > 0){
                             for (var i = 0, len = feat.length; i < len; i++) {
 
-                                // clean data
+                                // clean fields
+
+                                // create unitid_year
                                 if(feat[i].unitid != null && feat[i].year != null){
                                     unitid_year = (feat[i].unitid).toString() + '-' + (feat[i].year).toString();
                                 } else {
                                     unitid_year = null;
                                 };
 
+                                // truncate zip to 5 digits
                                 if(feat[i].zip != null){
                                     zip_cleaned = (feat[i].zip).toString().substring(0,5);
                                 } else{
                                     zip_cleaned = null;
                                 };
 
+                                // pad county fips to 5 digits with leading 0
                                 if(feat[i].county_fips != null){
                                     county_fips_cleaned = zeroPad(feat[i].county_fips, 5);
                                 } else{
                                     county_fips_cleaned = null;
                                 };
 
+                                // recode region using metadata labels
                                 if(feat[i].region != null){
                                     region_cleaned = label_dictionary["region"][feat[i].region];
                                 } else{
                                     region_cleaned = null;
                                 };
 
+                                // remove state identifier from congress_district_id
                                 if(feat[i].congress_district_id != null){
                                     congress_district_id_cleaned = Number(((feat[i].congress_district_id).toString()).slice(-2)).toString();
                                 } else{
                                     congress_district_id_cleaned = null;
                                 };
 
+                                // recode inst_control using metadata labels
                                 if(feat[i].inst_control != null){
                                     inst_control_cleaned = label_dictionary["inst_control"][feat[i].inst_control];
                                 } else{
                                     inst_control_cleaned = null;
                                 };
 
+                                // recode institution_level using metadata labels
                                 if(feat[i].institution_level != null){
                                     institution_level_cleaned = label_dictionary["institution_level"][feat[i].institution_level];
                                 } else{
