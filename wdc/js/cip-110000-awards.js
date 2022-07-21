@@ -1,457 +1,442 @@
-(function() {
-    // Create the connector object
-    var myConnector = tableau.makeConnector();
 
-    const zeroPad = (num, places) => String(num).padStart(places, '0')
+let savedCSVData; // Always a string
+// Create the connector object
+var myConnector = tableau.makeConnector();
+console.log("1");
+// Populate inputs if they were previously entered
+myConnector.init = function(initCallback) {
+    if (
+    tableau.phase == tableau.phaseEnum.interactivePhase &&
+    tableau.connectionData.length > 0
+    ) {
+    const conData = JSON.parse(tableau.connectionData);
+    $("#url").val(conData.dataUrl || "");
+    $("#method").val(conData.method || "GET");
+    $("#token").val(tableau.password || "");
+    $("#delimiter").val(conData.delimiter || "");
+    $("#encoding").val(conData.encoding || "");
+    if (conData.fastMode) {
+        _setMode("fast");
+    }
+    if (conData.mode) {
+        _setMode(conData.mode);
+    }
+    }
 
-    // Define the schema
-    myConnector.getSchema = async function(schemaCallback) {
+    initCallback();
+};
+console.log("2");
+// Define the schema
+myConnector.getSchema = async function(schemaCallback) {
 
-        var standardConnection = {
-            "alias": "Joined awards data",
-            "tables": [{
-                "id": "awards",
-                "alias": "CIP 11 Awards"
-            }, {
-                "id": "institution",
-                "alias": "Institution"
-            }],
-            "joins": [{
-                "left": {
-                    "tableAlias": "CIP 11 Awards",
-                    "columnId": "unitid_year"
-                },
-                "right": {
-                    "tableAlias": "Institution",
-                    "columnId": "unitid_year"
-                },
-                "joinType": "left"
-            }]
-        };
-
-
-        var var_description = {};
-        var var_label = {};
-        var variable_metadata = await fetch('https://educationdata-stg.urban.org/api/v1/api-variables/')
-            .then(response => response.json());
-        var variable_metadata_feat = variable_metadata.results;
-        variable_metadata_feat.forEach(function (arrayItem) {
-           var_description[arrayItem.variable] = arrayItem.description;
-           var_label[arrayItem.variable] = arrayItem.label;
+    console.time("Creating table schema");
+    let conData = JSON.parse(tableau.connectionData);
+    let dataUrl = conData.dataUrl;
+    let method = conData.method;
+    let delimiter =
+        conData.delimiter && conData.delimiter !== "" ? conData.delimiter : ",";
+    let encoding =
+        conData.encoding && conData.encoding !== "" ? conData.encoding : "";
+    let token = tableau.password;
+    let mode = conData.fastMode ? "fast" : conData.mode ? conData.mode : "typed";
+    
+    let data =
+        savedCSVData ||
+        (await _retrieveCSVData({ dataUrl, method, token, encoding }));
+    
+    console.log(data)
+    
+    let cols = [];
+    
+    if (mode === "fast") {
+        let headers = data
+        .split(/\r?\n/)[0]
+        .split(delimiter)
+        .map(header => header.replace(/"/g, ""));
+        headers = _sanitizeKeys(headers);
+        for (let header in headers) {
+        cols.push({
+            id: header,
+            alias: headers[header].alias,
+            dataType: "string"
         });
-
-        // Schema for Completion
-        let completionCols = [
-            {
-                id: "unitid_year",
-                alias: "ID-year",
-                dataType: tableau.dataTypeEnum.string
-            },
-            {
-                id: "unitid",
-                alias: var_label["unitid"],
-                dataType: tableau.dataTypeEnum.string,
-                description: var_description["unitid"]
-            },
-            {
-                id: "year",
-                alias: var_label["year"],
-                dataType: tableau.dataTypeEnum.string,
-                description: var_description["year"]
-            },
-            {
-                id: "cipcode",
-                alias: var_label["cipcode"],
-                dataType: tableau.dataTypeEnum.string,
-                description: var_description["cipcode"]
-            },
-            {
-                id: "award_level",
-                alias: var_label["award_level"],
-                dataType: tableau.dataTypeEnum.string,
-                description: var_description["award_level"]
-            },
-            {
-                id: "majornum",
-                alias: var_label["majornum"],
-                dataType: tableau.dataTypeEnum.string,
-                description: var_description["majornum"]
-            },
-            {
-                id: "sex",
-                alias: var_label["sex"],
-                dataType: tableau.dataTypeEnum.string,
-                description: var_description["sex"]
-            },
-            {
-                id: "race",
-                alias: var_label["race"],
-                dataType: tableau.dataTypeEnum.string,
-                description: var_description["race"]
-            },
-            {
-                id: "awards",
-                alias: var_label["awards"],
-                dataType: tableau.dataTypeEnum.int,
-                description: var_description["awards"]
-            }
-        ];
-
-        let completionTable = {
-            id: "awards",
-            alias: "CIP 11 Awards",
-            columns: completionCols
-        };
-
-        // Schema for Institution/College
-        let institutionCols = [
-            {
-                id: "unitid_year",
-                alias: "ID-year",
-                dataType: tableau.dataTypeEnum.string,
-            },
-            {
-                id: "unitid",
-                alias: var_label["unitid"],
-                dataType: tableau.dataTypeEnum.string,
-                description: var_description["unitid"]
-            },
-            {
-                id: "year",
-                alias: var_label["year"],
-                dataType: tableau.dataTypeEnum.date,
-                description: var_description["year"]
-            },
-            {
-                id: "inst_name",
-                alias: var_label["inst_name"],
-                dataType: tableau.dataTypeEnum.string,
-                description: var_description["inst_name"]
-            },
-            {
-                id: "state_abbr",
-                alias: var_label["state_abbr"],
-                dataType: tableau.dataTypeEnum.string,
-                geoRole: tableau.geographicRoleEnum.state_province,
-                description: var_description["state_abbr"]
-            },
-            {
-                id: "zip",
-                alias: var_label["zip"],
-                dataType: tableau.dataTypeEnum.string,
-                description: var_description["zip"]
-            },
-            {
-                id: "county_fips",
-                alias: var_label["county_fips"],
-                dataType: tableau.dataTypeEnum.string,
-                description: var_description["county_fips"]
-            },
-            {
-                id: "region",
-                alias: var_label["region"],
-                dataType: tableau.dataTypeEnum.string,
-                description: var_description["region"]
-            },
-            {
-                id: "cbsa",
-                alias: var_label["cbsa"],
-                dataType: tableau.dataTypeEnum.string,
-                description: var_description["cbsa"]
-            },
-            {
-                id: "congress_district_id",
-                alias: "114th congressional district identification number",
-                dataType: tableau.dataTypeEnum.string,
-                geoRole: tableau.geographicRoleEnum.congressional_district,
-                description: var_description["congress_district_id"]
-            },
-            {
-                id: "inst_control",
-                alias: var_label["inst_control"],
-                dataType: tableau.dataTypeEnum.string,
-                description: var_description["inst_control"]
-            },
-            {
-                id: "institution_level",
-                alias: var_label["institution_level"],
-                dataType: tableau.dataTypeEnum.string,
-                description: var_description["institution_level"]
-            },
-            {
-                id: "hbcu",
-                alias: var_label["hbcu"],
-                dataType: tableau.dataTypeEnum.string,
-                description: var_description["hbcu"]
-            },
-            {
-                id: "tribal_college",
-                alias: var_label["tribal_college"],
-                dataType: tableau.dataTypeEnum.string,
-                description: var_description["tribal_college"]
-            },
-            {
-                id: "city",
-                alias: var_label["city"],
-                dataType: tableau.dataTypeEnum.string,
-                description: var_description["city"]
-            }
-        ];
-        
-        let institutionTable = {
-            id: "institution",
-            alias: "Institution",
-            columns: institutionCols
-        };
-        //schemaCallback([completionTable, institutionTable]);
-        schemaCallback([completionTable, institutionTable], [standardConnection]);
-    };
-    // Download the data
-    myConnector.getData = async function(table, doneCallback){
-        var dateObj = JSON.parse(tableau.connectionData);
-        var dateString = dateObj.yearRequested[0];
-        //console.log(`date string: ${dateString}`);
-        var yearMax = dateObj.yearRequested.length;
-        //console.log(`Year Length: ${yearMax}`);
-        var fip = dateObj.fipRequested;
-        //console.log(`fip: ${fip}`);
-        
-        // Branch logic based on the table ID
-        switch(table.tableInfo.id) {
-            case 'awards':
-                var moreYears = true;
-                var yearCount = 0;
-                var morePages = true;
-                var page = 1;
-                var tableData = [];
-
-                // initialize label dictionary
-                variable_list = ["award_level", "majornum", "sex", "race"]
-                var label_dictionary = {}
-                variable_list.forEach(item =>
-                     label_dictionary[item] = {}
-                );
-
-                // metadata api call
-                var metadata_apiCall = "https://educationdata-stg.urban.org/api/v1/api-values/";
-                var metadata = await fetch(metadata_apiCall).then(response => response.json());
-                var metadata_feat = metadata.results;
-
-                // loop through metadata and add relevant values to label dictionary
-                metadata_feat.forEach(function (arrayItem) {
-                    if(variable_list.includes(arrayItem.format_name)){
-                        label_dictionary[arrayItem.format_name][arrayItem.code] = arrayItem.code_label.split(" - ")[1]
-
-                        if(arrayItem.format_name=="region"){
-                            label_dictionary[arrayItem.format_name][arrayItem.code] = label_dictionary[arrayItem.format_name][arrayItem.code].split(":")[0]
-                        };
-                    };
-                });
-                
-                //while (moreYears) {
-                while (morePages && moreYears) {
-                    //Manually handle asynchronicity
-                    
-                    apiCall = `https://educationdata.urban.org/api/v1/college-university/ipeds/completions-cip-2/${dateString}/?fips=${fip}&cipcode=110000&page=${page}`;
-
-                    var data = await fetch(apiCall).then(response => response.json());
-
-                    var nextPage = data.next;
-                    
-                    var feat = data.results;
-                        //tableData = [];
-                    var i = 0;
-                    // Iterate over the JSON object
-                    if (table.tableInfo.id == "awards") {
-                        if (feat.length > 0){
-                            for (var i = 0, len = feat.length; i < len; i++) {
-                                
-                                tableData.push({
-                                "unitid_year": (feat[i].unitid).toString() + '-' + (feat[i].year).toString(),
-                                "unitid": feat[i].unitid,
-                                "year": feat[i].year,
-                                "cipcode": feat[i].cipcode,
-                                "award_level": label_dictionary["award_level"][feat[i].award_level],
-                                "majornum": label_dictionary["majornum"][feat[i].majornum],
-                                "sex": label_dictionary["sex"][feat[i].sex],
-                                "race": label_dictionary["race"][feat[i].race],
-                                "awards": feat[i].awards,
-                                });
-                                
-                            }
-                            if(nextPage == null) { //Check if we reach the page limit for the current page
-
-
-                                page = 1;
-                                console.log("Pulled page " + page + " for " + yearCount);
-                                yearCount++;
-                                dateString = dateObj.yearRequested[yearCount]
-
-                                if(dateString==undefined){
-                                    //console.log("Finished loading all years")
-                                    moreYears=false;
-                                }
-                            }/*else if(dateString == undefined || dateString == null){
-                                console.log('Break-User chose only one year');
-                                moreYears = false;
-                                break;
-                            }*/
-                            else{
-                                page++;
-                            }
-                            /*if(yearCount >= 3){
-                                console.log('Break-1');
-                                moreYears = false;
-                                break;
-                                
-                            }*/
-                        } else{
-                            morePages = false;
-                        }
-                        
-                    }
-
-                };
-                table.appendRows(tableData);
-                doneCallback();
-                //console.log('table-1-done-rendering');
-                //};
-                break;
-
-            case 'institution':
-                var moreYears = true;
-                var yearCount = 0;
-                var morePages = true;
-                var page = 1;
-                tableData = [];
-
-                // initialize label dictionary
-                variable_list = ["region","inst_control", "institution_level"]
-                var label_dictionary = {}
-                variable_list.forEach(item =>
-                    label_dictionary[item] = {}
-                );
-
-                // metadata api call
-                var metadata_apiCall = "https://educationdata-stg.urban.org/api/v1/api-values/";
-                var metadata = await fetch(metadata_apiCall).then(response => response.json());
-                var metadata_feat = metadata.results;
-
-                // loop through metadata and add relevant values to label dictionary
-                metadata_feat.forEach(function (arrayItem) {
-                    if(variable_list.includes(arrayItem.format_name)){
-                        label_dictionary[arrayItem.format_name][arrayItem.code] = arrayItem.code_label.split(" - ")[1]
-
-                        if(arrayItem.format_name=="region"){
-                            label_dictionary[arrayItem.format_name][arrayItem.code] = label_dictionary[arrayItem.format_name][arrayItem.code].split(":")[0]
-                        };
-                    };
-                });
-
-                while(morePages && moreYears){
-                    apiCall = `https://educationdata.urban.org/api/v1/college-university/ipeds/directory/${dateString}/?fips=${fip}&cipcode=110000&page=${page}`;
-                    //console.log(`api${page}: ${apiCall}`);
-                    var data = await fetch(apiCall).then(response => response.json());
-
-                    var nextPage = data.next;
-
-                    var feat = data.results;
-                        //tableData = [];
-                        
-                    var i = 0;
-
-                    // Iterate over the JSON object
-                    if (table.tableInfo.id == "institution") {
-                        if(feat.length > 0){
-                            for (var i = 0, len = feat.length; i < len; i++) {
-                                tableData.push({
-                                "unitid_year": (feat[i].unitid).toString() + '-' + (feat[i].year).toString(),
-                                "unitid": feat[i].unitid,
-                                "year": feat[i].year,
-                                "inst_name": feat[i].inst_name,
-                                "state_abbr": feat[i].state_abbr,
-                                "zip": (feat[i].zip).toString().substring(0,5),
-                                "county_fips": zeroPad(feat[i].county_fips, 5),
-                                "region": label_dictionary["region"][feat[i].region],
-                                "cbsa": feat[i].cbsa,
-                                "congress_district_id": Number(((feat[i].congress_district_id).toString()).slice(-2)).toString(),
-                                "inst_control": label_dictionary["inst_control"][feat[i].inst_control],
-                                "institution_level": label_dictionary["institution_level"][feat[i].institution_level],
-                                "hbcu": feat[i].hbcu,
-                                "tribal_college": feat[i].tribal_college,
-                                "city": feat[i].city,
-                                });
-                            }
-                            if(nextPage == null) { //Check if we reach the page limit for the current page
-                                page = 1;
-                                console.log("Pulled page " + page + " for " + yearCount);
-                                yearCount++;
-                                dateString = dateObj.yearRequested[yearCount];
-
-                                if(dateString==undefined){
-                                    //console.log("Finished loading all years")
-                                    moreYears=false;
-                                }
-                            }
-                            else{
-                                page++;
-                            }
-                            /*if(yearCount >= 3){
-                                console.log('Break-2');
-                                moreYears = false;
-                                break;
-                                
-                            }*/
-                        } 
-                        else {
-                            morePages = false;
-                        }
-                    }
-
-                };
-                table.appendRows(tableData);
-                doneCallback();
-                //console.log('table-2-done-rendering');
-                break;
-        };
-    };
-
-    tableau.registerConnector(myConnector);
-    // Create event listeners for when the user submits the form
-    $(document).ready(function() {
-        $('#submitButton').prop("disabled", true);
-        document.getElementById('submitButton').style.backgroundColor = '#efefef'
-
-        $('select').change(function(){
-            //var selected_option = $(this).find(":selected").val();
-            var years = $('#choose').val();
-            var state = $('#state-fip').val();
-            //console.log(`selected-years: ${years}`);
-            //console.log(`selected-state: ${state}`);
-            if (state !="" & years !="") {
-                $('#submitButton').prop("disabled", false);
-                document.getElementById('submitButton').style.backgroundColor = 'White';
-                document.getElementById('error-message').style.visibility = 'hidden';      // Hide
-
-            } else {
-                $('#submitButton').prop("disabled", true);
-                document.getElementById('submitButton').style.backgroundColor = '#efefef'
-                document.getElementById('error-message').style.visibility = 'visible';
-            }
-          });
-        
-        $("#submitButton").click(function() {
-            var dateObj = {
-                yearRequested: $('#choose').val(),
-                fipRequested:  $('#state-fip').val().trim(),
-            };
-            if (dateObj.yearRequested) {
-                tableau.connectionData = JSON.stringify(dateObj); // Use this variable to pass data to your getSchema and getData functions
-                tableau.connectionName = "IPEDS Awards Data for CIP 11"; // This will be the data source name in Tableau
-                tableau.submit(); // This sends the connector object to Tableau
-            } else {
-                $('#errorMsg').html("Enter a valid year. For example, 2018.");
-            }
+        }
+    } else {
+        let headers = _determineTypes(_parse(data, delimiter, true));
+        console.log(headers)
+        for (let field in headers) {
+        cols.push({
+            id: field,
+            alias: headers[field].alias,
+            dataType: headers[field].dataType
         });
+        }
+    }
+    
+    let tableSchema = {
+        id: "csvData",
+        alias: "CSV Data",
+        columns: cols
+    };
+    
+    console.timeEnd("Creating table schema");
+    schemaCallback([tableSchema]);
+};
+console.log("3");
+// Download the data
+myConnector.getData = async function(table, doneCallback){
+
+    console.time("Getting data");
+    let conData = JSON.parse(tableau.connectionData);
+    let dataUrl = conData.dataUrl;
+    let method = conData.method;
+    let delimiter =
+        conData.delimiter && conData.delimiter !== "" ? conData.delimiter : ",";
+    let encoding =
+        conData.encoding && conData.encoding !== "" ? conData.encoding : "";
+    let token = tableau.password;
+    let mode = conData.fastMode ? "fast" : conData.mode ? conData.mode : "typed";
+    let tableSchemas = [];
+    
+    let data =
+        savedCSVData ||
+        (await _retrieveCSVData({ dataUrl, method, token, encoding }));
+    
+    let rows;
+    switch (mode) {
+        case "fast":
+        rows = _parse(data, delimiter, false).slice(1);
+        break;
+        case "typed":
+        rows = _cleanData(_parse(data, delimiter, true));
+        break;
+        case "loosetyped":
+        rows = _parse(data, delimiter, true).slice(1);
+        break;
+        default:
+        rows = _cleanData(_parse(data, delimiter, true));
+    }
+    
+    let row_index = 0;
+    let size = 10000;
+    while (row_index < rows.length) {
+        table.appendRows(rows.slice(row_index, size + row_index));
+        row_index += size;
+        tableau.reportProgress("Getting row: " + row_index);
+    }
+    console.timeEnd("Getting data");
+    
+    doneCallback();
+};
+console.log("4");
+tableau.connectionName = "CSV Data";
+console.log("a");
+tableau.registerConnector(myConnector);
+console.log("b");
+
+console.log("5");
+// Grabs wanted fields and submits configuration to Tableau
+async function _submitDataToTableau() {
+    let dataUrl = $("#url")
+      .val()
+      .trim();
+    let method = $("#method").val();
+    let token = $("#token").val();
+    let delimiter = $("#delimiter").val();
+    let encoding = $("#encoding").val();
+    let mode =
+      $("#fast").attr("class") === "is-active"
+        ? "fast"
+        : $("#typed").attr("class") === "is-active"
+        ? "typed"
+        : "loosetyped";
+    if (!dataUrl) return _error("No data entered.");
+  
+    const urlRegex = /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/|ftp:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/gm;
+    const result = dataUrl.match(urlRegex);
+    if (result === null) {
+      _error("WARNING: URL may not be valid...");
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
+  
+    tableau.connectionData = JSON.stringify({
+      dataUrl,
+      method,
+      delimiter,
+      encoding,
+      mode
     });
-})();
+    tableau.password = token;
+  
+    tableau.submit();
+}
+  console.log("6");
+// Gets data from CSV URL
+async function _retrieveCSVData({ dataUrl, method, token, encoding }) {
+    console.time("Fetching data");
+    let result;
+  
+    try {
+      let options = {
+        method,
+        
+        headers: {
+          "Content-Type": "application/json"
+        }
+      };
+  
+      if (token) {
+        options.headers["Authorization"] = `Bearer ${token}`;
+      }
+      console.log("a");
+      const response = await fetch(dataUrl, options);
+      if (encoding && encoding !== "") {
+        let buffer = await response.arrayBuffer();
+        const decoder = new TextDecoder(encoding);
+        result = decoder.decode(buffer);
+      } else {
+        result = await response.text();
+      }
+    } catch (error) {
+      try {
+        let options = {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            method,
+            token,
+            encoding
+          })
+        };
+        const response = await fetch("/proxy/" + dataUrl, options);
+        result = await response.text();
+      } catch (error) {
+        if (tableau.phase !== "interactive") {
+          tableau.abortWithError(error);
+        } else {
+          _error(error);
+        }
+        return;
+      }
+    }
+    console.log("b");
+    if (!result || result.error) {
+      if (tableau.phase !== "interactive") {
+        console.error(result.error);
+        tableau.abortWithError(result.error);
+      } else {
+        _error(result.error);
+      }
+      return;
+    }
+    savedCSVData = result;
+    console.timeEnd("Fetching data");
+    return savedCSVData;
+}
+  console.log("7");
+// Sanitizes headers so they work in Tableau without duplicates
+function _sanitizeKeys(fields) {
+console.time("Sanitizing keys");
+let headers = {};
+for (let field of fields) {
+    let newKey = field.replace(/[^A-Za-z0-9_]/g, "_");
+    let safeToAdd = false;
+
+    do {
+    if (Object.keys(headers).includes(newKey)) {
+        newKey += "_copy";
+    } else {
+        safeToAdd = true;
+    }
+    } while (!safeToAdd);
+
+    headers[newKey] = { alias: field };
+}
+console.timeEnd("Sanitizing keys");
+return headers;
+}
+
+// Parses csv to array of arrays
+function _parse(csv, delimiter, dynamicTyping) {
+    console.time("Parsing csv");
+    const lines = Papa.parse(csv, {
+        delimiter,
+        newline: "\n",
+        dynamicTyping
+    }).data;
+    console.timeEnd("Parsing csv");
+    return lines;
+}
+
+// Determines column data types based on first 100 rows
+function _determineTypes(lines) {
+    console.time("Determining data types");
+    let fields = lines.shift();
+    let testLines = lines.slice(0, 100);
+    let headers = _sanitizeKeys(fields);
+    let headerKeys = Object.keys(headers);
+    let rows = [];
+
+    let counts = testLines.map(line => line.length);
+    let lineLength = counts.reduce((m, c) =>
+        counts.filter(v => v === c).length > m ? c : m
+    );
+
+    for (let line of testLines) {
+        if (line.length === lineLength) {
+        for (let index in headerKeys) {
+            let header = headers[headerKeys[index]];
+            let value = line[index];
+
+            if (
+            value === "" ||
+            value === '""' ||
+            value === "null" ||
+            value === null
+            ) {
+            header.null = header.null ? header.null + 1 : 1;
+            } else if (
+            value === "true" ||
+            value === true ||
+            value === "false" ||
+            value === false
+            ) {
+            header.bool = header.bool ? header.bool + 1 : 1;
+            } else if (typeof value === "object") {
+            header.string = header.string ? header.string + 1 : 1;
+            } else if (!isNaN(value)) {
+            if (parseInt(value) == value) {
+                header.int = header.int ? header.int + 1 : 1;
+            } else {
+                header.float = header.float ? header.float + 1 : 1;
+            }
+            } else {
+            header.string = header.string ? header.string + 1 : 1;
+            }
+        }
+        } else {
+        console.log("Row ommited due to mismatched length.", line);
+        }
+    }
+
+    for (let field in headers) {
+        // strings
+        if (headers[field].string) {
+        headers[field].dataType = "string";
+        continue;
+        }
+        // nulls
+        if (Object.keys(headers[field]).length === 1 && headers[field].null) {
+        headers[field].dataType = "string";
+        continue;
+        }
+        // floats
+        if (headers[field].float) {
+        headers[field].dataType = "float";
+        continue;
+        }
+        // integers
+        if (headers[field].int) {
+        headers[field].dataType = "int";
+        continue;
+        }
+        // booleans
+        if (headers[field].bool) {
+        headers[field].dataType = "bool";
+        continue;
+        }
+        headers[field].dataType = "string";
+    }
+
+    console.timeEnd("Determining data types");
+    return headers;
+}
+
+// Tries to clean up data to appropriately match data types
+function _cleanData(lines) {
+    console.time("Cleaning data");
+    let fields = lines.shift();
+    let headers = _sanitizeKeys(fields);
+    let headerKeys = Object.keys(headers);
+    let rows = [];
+
+    let counts = lines.map(line => line.length);
+    let lineLength = counts.reduce((m, c) =>
+        counts.filter(v => v === c).length > m ? c : m
+    );
+
+    for (let line of lines) {
+        if (line.length === lineLength) {
+        let obj = {};
+        let headerKeys = Object.keys(headers);
+        for (let field in headerKeys) {
+            let header = headers[headerKeys[field]];
+            let value = line[field];
+
+            if (
+            value === "" ||
+            value === '""' ||
+            value === "null" ||
+            value === null
+            ) {
+            obj[headerKeys[field]] = null;
+            } else if (value === "true" || value === true) {
+            obj[headerKeys[field]] = true;
+            } else if (value === "false" || value === false) {
+            obj[headerKeys[field]] = false;
+            } else if (typeof value === "object") {
+            obj[headerKeys[field]] = value.toISOString();
+            } else if (!isNaN(value)) {
+            obj[headerKeys[field]] = value;
+            } else {
+            obj[headerKeys[field]] = value;
+            }
+        }
+        rows.push(obj);
+        } else {
+        console.log("Row ommited due to mismatched length.", line);
+        }
+    }
+    console.timeEnd("Cleaning data");
+    return rows;
+}
+
+// Show/hide advanced options
+function toggleAdvanced() {
+    $("#advanced").toggleClass("hidden");
+}
+
+// Shows error message below submit button
+function _error(message) {
+    $(".error")
+        .fadeIn("fast")
+        .delay(3000)
+        .fadeOut("slow");
+    $(".error").html(message);
+    $("html, body").animate({ scrollTop: $(document).height() }, "fast");
+}
+
+// Changes mode
+function _setMode(mode) {
+    $("#typed,#fast,#loosetyped").each(function() {
+        $(this).removeClass("is-active");
+    });
+    $(`#${mode}`).addClass("is-active");
+}
+
+// Submits when you push Enter
+$("#url").keypress(function(event) {
+    if (event.keyCode === 13) {
+        _submitDataToTableau();
+    }
+});
+
+// Allows you to enter a tab as the delimiter
+$("#delimiter").keydown(function(event) {
+    if (event.keyCode === 9) {
+        event.preventDefault();
+        $("#delimiter").val("\t");
+    }
+});

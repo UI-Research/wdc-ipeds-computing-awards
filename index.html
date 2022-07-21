@@ -7,20 +7,20 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link rel="stylesheet" href="fonts/icomoon/style.css">
 
-    <link rel="stylesheet" href="wdc/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="/css/bootstrap-select.min.css">
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="wdc/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
     
     <!-- Style -->
-    <link rel="stylesheet" href="wdc/css/style.css">
+    <link rel="stylesheet" href="/css/style.css">
     
     <!--Google fonts-->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href='https://fonts.googleapis.com/css?family=Lato' rel='stylesheet'>
     <!--Static css file-->
-    <link href="./wdc/css/main.css" rel="stylesheet">
+    <link href="/css/main.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 
 </head>
@@ -32,13 +32,13 @@
             <header>
                 <div class="top-banner">
                     <span> 
-                        <img src="wdc/img/urban_logo.png" alt="urban" class="logo">
+                        <img src="/img/urban_logo.png" alt="urban" class="logo">
                     </span>
                     <span class="vertical"></span>
                     <span class="tagline"> <h3 class="tagline-text">Center on Education Data and Policy</h3></span>
                 </div>
                 <div class="header-image-container">
-                    <img src="wdc/img/hero_image.png" alt="education" class="header-image">
+                    <img src="/img/hero_image.png" alt="education" class="header-image">
                 </div>
             </header>
             <section class="content-section">
@@ -53,131 +53,112 @@
                     <h6>"Joined awards data" table is a left join between "awards" (left) and "institution" (right)</h6>
                 </div>
                 <form class="form form-group">
-                        
-                    <select name="state" id="state-fip" class="selectpicker">
-                        <option value=""> Select State </option>
-                        <option value="1"> Alabama </option>
-                        <option value="2"> Alaska </option>
-                        <!-- <option value="3"> American Samoa </option> -->
-                        <option value="4"> Arizona </option>
-                        <option value="5"> Arkansas </option>
-                        <option value="6"> California </option>
-                        <!-- <option value="7"> Canal Zone </option> -->
-                        <option value="8"> Colorado </option>
-                        <option value="9"> Connecticut </option>
-                        <option value="10"> Delaware </option>
-                        <option value="11"> District of Columbia </option>
-                        <option value="12"> Florida </option>
-                        <option value="13"> Georgia </option>
-                        <!-- <option value="14"> Guam </option> -->
-                        <option value="15"> Hawaii </option>
-                        <option value="16"> Idaho </option>
-                        <option value="17"> Illinois </option>
-                        <option value="18"> Indiana </option>
-                        <option value="19"> Iowa </option>
-                        <option value="20"> Kansas </option>
-                        <option value="21"> Kentucky </option>
-                        <option value="22"> Louisiana </option>
-                        <option value="23"> Maine </option>
-                        <option value="24"> Maryland </option>
-                        <option value="25"> Massachusetts </option>
-                        <option value="26"> Michigan </option>
-                        <option value="27"> Minnesota </option>
-                        <option value="28"> Mississippi </option>
-                        <option value="29"> Missouri </option>
-                        <option value="30"> Montana </option>
-                        <option value="31"> Nebraska </option>
-                        <option value="32"> Nevada </option>
-                        <option value="33"> New Hampshire </option>
-                        <option value="34"> New Jersey </option>
-                        <option value="35"> New Mexico </option>
-                        <option value="36"> New York </option>
-                        <option value="37"> North Carolina </option>
-                        <option value="38"> North Dakota </option>
-                        <option value="39"> Ohio </option>
-                        <option value="40"> Oklahoma </option>
-                        <option value="41"> Oregon </option>
-                        <option value="42"> Pennsylvania </option>
-                        <!-- <option value="43"> Puerto Rico </option> -->
-                        <option value="44"> Rhode Island </option>
-                        <option value="45"> South Carolina </option>
-                        <option value="46"> South Dakota </option>
-                        <option value="47"> Tennessee </option>
-                        <option value="48"> Texas </option>
-                        <option value="49"> Utah </option>
-                        <option value="50"> Vermont </option>
-                        <option value="51"> Virginia </option>
-                        <!-- <option value="52"> Virgin islands of the US </option> -->
-                        <option value="53"> Washington </option>
-                        <option value="54"> West Virginia </option>
-                        <option value="55"> Wisconsin </option>
-                        <option value="56"> Wyoming </option>
-                        <!-- <option value="58"> Department of Defense Dependent Schools (overseas) </option>
-                        <option value="59"> Bureau of Indian Education </option> -->
-                        <option value="60"> American Samoa </option>
-                        <!-- <option value="61"> Department of Defense Dependent Schools (domestic) </option>
-                        <option value="63"> Department of Defense Education Activity </option> -->
-                        <option value="64"> Federated States of Micronesia </option>
-                        <!-- <option value="65"> Mariana Islands waters (including Guam) </option> -->
-                        <option value="66"> Guam </option>
-                        <!-- <option value="67"> Johnston Atoll </option> -->
-                        <option value="68"> Marshall Islands </option>
-                        <option value="69"> Nothern Mariana Islands </option>
-                        <option value="70"> Palau </option>
-                        <!-- <option value="71"> Midway Islands </option> -->
-                        <option value="72"> Puerto Rico </option>
-                        <!-- <option value="74"> US Minor Outlying Islands </option>
-                        <option value="75"> Atlantic coast from North Carolina to Florida, and the coasts of Puerto Rico and Virgin Islands </option>
-                        <option value="76"> Navassa Islands </option> -->
-                        <option value="78"> Virgin Islands of the US </option>
-                        <!-- <option value="79"> Wake Island </option>
-                        <option value="81"> Baker Island </option>
-                        <option value="84"> Howland Island </option>
-                        <option value="86"> Jarvis Island </option>
-                        <option value="89"> Kingman Reef </option>
-                        <option value="95"> Palmyra Atoll </option>
-                        <option value="-1"> Missing/not reported </option>
-                        <option value="-2"> Not applicable </option>
-                        <option value="-3"> Suppressed data </option> -->
-                    </select>
-                    
-                    
-                    <select id="choose" class="selectpicker" multiple data-max-options="3" title="Select Year(s)">
-                        
-                        <option value="">  </option>
-                        <option value="2019"> 2019 </option>
-                        <option value="2018"> 2018 </option>
-                        <option value="2017"> 2017 </option>
-                        <option value="2016"> 2016 </option>
-                        <option value="2015"> 2015 </option>
-                        <option value="2014"> 2014 </option>
-                        <option value="2013"> 2013 </option>
-                        <option value="2012"> 2012 </option>
-                        <option value="2011"> 2011 </option>
-                        <option value="2010"> 2010 </option>
-                        <option value="2009"> 2009 </option>
-                        <option value="2008"> 2008 </option>
-                        <option value="2007"> 2007 </option>
-                        <option value="2006"> 2006 </option>
-                        <option value="2005"> 2005 </option>
-                        <option value="2004"> 2004 </option>
-                        <option value="2003"> 2003 </option>
-                        <option value="2002"> 2002 </option>
-                        <option value="2001"> 2001 </option>
-                        <option value="2000"> 2000 </option>
-                        <option value="1999"> 1999 </option>
-                        <option value="1998"> 1998 </option>
-                        <option value="1997"> 1997 </option>
-                        <option value="1996"> 1996 </option>
-                        <option value="1995"> 1995 </option>
-                        <option value="1994"> 1994 </option>
-                        <option value="1993"> 1993 </option>
-                        <option value="1992"> 1992 </option>
-                        <option value="1991"> 1991 </option>
 
-                    </select>
-                    <button type = "button" id = "submitButton" class = "btn-fetch">Get Data</button>
-            </form>
+                    <div class="field">
+                        <label class="label">Enter your CSV's URL:</label>
+                        <div class="control">
+                          <input class="input" id="url" type="url" />
+                        </div>
+                      </div>
+            
+                      <p class="advanced" onclick="toggleAdvanced()">Advanced +</p>
+                      <div class="hidden block" id="advanced">
+                        <div class="field">
+                          <label class="label is-small">Method</label>
+                          <div class="control">
+                            <div class="select is-fullwidth is-small">
+                              <select id="method">
+                                <option value="GET" selected>GET</option>
+                                <option value="POST">POST</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+            
+                        <div class="field">
+                          <label class="label is-small">Bearer token:</label>
+                          <div class="control">
+                            <input class="input is-small" id="token" type="text" />
+                          </div>
+                        </div>
+            
+                        <div class="field">
+                          <label class="label is-small">Custom delimiter:</label>
+                          <div class="control">
+                            <input
+                              class="input is-small"
+                              id="delimiter"
+                              type="text"
+                              maxlength="1"
+                              size="1"
+                              placeholder="One character, default is comma"
+                            />
+                          </div>
+                        </div>
+                        <div class="field">
+                          <label class="label is-small"
+                            >Encoding:
+                            <a
+                              href="https://github.com/ashtuchkin/iconv-lite/wiki/Supported-Encodings"
+                              target="_blank"
+                              >supported</a
+                            ></label
+                          >
+                          <div class="control">
+                            <input
+                              class="input is-small"
+                              id="encoding"
+                              type="text"
+                              placeholder="Ex: iso-8859-1, default is utf-8"
+                            />
+                          </div>
+                        </div>
+                      </div>
+            
+                      <div class="tabs is-toggle is-fullwidth is-small">
+                        <ul>
+                          <li id="typed">
+                            <a
+                              href="javascript:_setMode('typed')"
+                              class="is-flex is-flex-direction-column"
+                            >
+                              <span><b>Strict Typed Mode</b></span>
+                              <span>Infer column data types and try to clean data</span>
+                              <span><i>Slow, don't use with large files</i></span>
+                            </a>
+                          </li>
+                          <li id="loosetyped" class="is-active">
+                            <a
+                              href="javascript:_setMode('loosetyped')"
+                              class="is-flex is-flex-direction-column"
+                            >
+                              <span><b>Loose Typed Mode</b></span>
+                              <span>Infer column data types but don't clean data</span>
+                              <span><i>Faster, use with well structured files</i></span>
+                            </a>
+                          </li>
+                          <li id="fast">
+                            <a
+                              href="javascript:_setMode('fast')"
+                              class="is-flex is-flex-direction-column"
+                            >
+                              <span><b>Fast Mode</b></span>
+                              <span>Bring all values in as strings, no cleaning</span>
+                              <span><i>Fastest, but you manually set data types</i></span>
+                            </a>
+                          </li>
+                        </ul>
+                      </div>
+                    
+                      <div class="buttons">
+                        <button
+                          class="button is-primary is-fullwidth"
+                          onclick="_submitDataToTableau()"
+                        >
+                          Get Data!
+                        </button>
+                    </div>
+                </form>
 
                 <div class="rules" id="error-message">
                     <h6 style="color:red;">You must select one state and up to three years.</h6>
@@ -194,13 +175,15 @@
 
     <script src="https://connectors.tableau.com/libs/tableauwdc-2.3.latest.js" type="text/javascript"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js" type="text/javascript"></script>
-    <script src="wdc/js/cip-110000-awards.js" type="text/javascript"></script>
+    <script src="/js/cip-110000-awards.js" type="text/javascript"></script>
     
-    <script src="wdc/js/jquery-3.3.1.min.js"></script>
-    <script src="wdc/js/popper.min.js"></script>
-    <script src="wdc/js/bootstrap.min.js"></script>
-    <script src="wdc/js/bootstrap-select.min.js"></script>
+    <script src="/js/jquery-3.3.1.min.js"></script>
+    <script src="/js/popper.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/bootstrap-select.min.js"></script>
     
-    <script src="wdc/js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.2.0/papaparse.min.js"></script>
+
+    <script src="/js/main.js"></script>
 </body>
 </html>
