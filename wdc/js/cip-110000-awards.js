@@ -11,6 +11,7 @@ myConnector.init = function(initCallback) {
     ) {
     const conData = JSON.parse(tableau.connectionData);
     $("#url").val(conData.dataUrl || "");
+    $("#choosen-years").val(conData.yearValue || "");
     $("#method").val(conData.method || "GET");
     $("#token").val(tableau.password || "");
     $("#delimiter").val(conData.delimiter || "");
@@ -22,7 +23,6 @@ myConnector.init = function(initCallback) {
         _setMode(conData.mode);
     }
     }
-
     initCallback();
 };
 console.log("2");
@@ -31,7 +31,11 @@ myConnector.getSchema = async function(schemaCallback) {
 
     console.time("Creating table schema");
     let conData = JSON.parse(tableau.connectionData);
+    console.log(`check conData: ${conData.yearValue}`);
     let dataUrl = conData.dataUrl;
+    console.log(`old url: ${dataUrl}`);
+    let yearValue = conData.yearValue;
+    console.log(`Year value: ${yearValue}`);
     let method = conData.method;
     let delimiter =
         conData.delimiter && conData.delimiter !== "" ? conData.delimiter : ",";
@@ -39,13 +43,24 @@ myConnector.getSchema = async function(schemaCallback) {
         conData.encoding && conData.encoding !== "" ? conData.encoding : "";
     let token = tableau.password;
     let mode = conData.fastMode ? "fast" : conData.mode ? conData.mode : "typed";
-    
+    // console.log(`check url:${finalUrl}`)
+    //Automate the csv link based on the selected years
+    let dataUrlPrefix = "https://educationdata.urban.org/csv/ipeds/colleges_ipeds_completions-2digcip_";
+    // let dataUrlPrefix = dataUrl.slice(0, 77)
+    let extension = ".csv";
+    let yearinit = yearValue[0];
+    let finalUrl = `${dataUrlPrefix}${yearinit}${extension}`;
+    console.log(`Prefix: ${dataUrlPrefix}`);
+    console.log(`which year: ${yearValue}`);
+    console.log(typeof yearValue);
+    console.log(yearValue[0]);
+    console.log(yearValue[1]);
+    console.log(yearValue[2]);
+    console.log(`Data Url Final: ${finalUrl}`);
     let data =
         savedCSVData ||
-        (await _retrieveCSVData({ dataUrl, method, token, encoding }));
-    
-    console.log(data)
-    
+        (await _retrieveCSVData({ finalUrl, method, token, encoding }));
+    console.log(data);
     let cols = [];
     
     if (mode === "fast") {
@@ -86,21 +101,38 @@ console.log("3");
 // Download the data
 myConnector.getData = async function(table, doneCallback){
 
-    console.time("Getting data");
-    let conData = JSON.parse(tableau.connectionData);
-    let dataUrl = conData.dataUrl;
-    let method = conData.method;
-    let delimiter =
-        conData.delimiter && conData.delimiter !== "" ? conData.delimiter : ",";
-    let encoding =
-        conData.encoding && conData.encoding !== "" ? conData.encoding : "";
-    let token = tableau.password;
-    let mode = conData.fastMode ? "fast" : conData.mode ? conData.mode : "typed";
-    let tableSchemas = [];
-    
+    //variables to keep track of the number of years choosen
+    let moreYears = true;
+    let yearCount = 0;
+    do{
+      // let dateString = yearValue [0];
+      console.time("Getting data");
+      let conData = JSON.parse(tableau.connectionData);
+      let dataUrl = conData.dataUrl;
+      let yearValue = conData.yearValue;
+      //creating the csv url
+      let dataUrlPrefix = "https://educationdata.urban.org/csv/ipeds/colleges_ipeds_completions-2digcip_";
+      // let dataUrlPrefix = dataUrl.slice(0, 77)
+      let extension = ".csv";
+      let yearinit = yearValue[0];
+      let yearMax = yearValue.length;
+      let finalUrl = `${dataUrlPrefix}${yearinit}${extension}`;
+      console.log(`Premye mwa a: ${yearinit}`);
+      let method = conData.method;
+      let delimiter =
+          conData.delimiter && conData.delimiter !== "" ? conData.delimiter : ",";
+      let encoding =
+          conData.encoding && conData.encoding !== "" ? conData.encoding : "";
+      let token = tableau.password;
+      let mode = conData.fastMode ? "fast" : conData.mode ? conData.mode : "typed";
+      let tableSchemas = [];
+      yearCount ++;
+      yearinit = yearValue[yearCount];
+    }
+    while(moreYears && yearCount <= yearValue.length);
     let data =
         savedCSVData ||
-        (await _retrieveCSVData({ dataUrl, method, token, encoding }));
+        (await _retrieveCSVData({ finalUrl, method, token, encoding }));
     
     let rows;
     switch (mode) {
@@ -140,6 +172,15 @@ async function _submitDataToTableau() {
     let dataUrl = $("#url")
       .val()
       .trim();
+    let yearValue = $("#choosen-years").val();
+    console.log(`eseye sa: ${yearValue}`);
+    // let yearValue = conData.yearValue;
+    //creating the csv url
+    let dataUrlPrefix = "https://educationdata.urban.org/csv/ipeds/colleges_ipeds_completions-2digcip_";
+    // let dataUrlPrefix = dataUrl.slice(0, 77)
+    let extension = ".csv";
+    let yearinit = yearValue[0];
+    let finalUrl = `${dataUrlPrefix}${yearinit}${extension}`;
     let method = $("#method").val();
     let token = $("#token").val();
     let delimiter = $("#delimiter").val();
@@ -150,17 +191,18 @@ async function _submitDataToTableau() {
         : $("#typed").attr("class") === "is-active"
         ? "typed"
         : "loosetyped";
-    if (!dataUrl) return _error("No data entered.");
+    if (!finalUrl) return _error("No data entered.");
   
     const urlRegex = /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/|ftp:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/gm;
-    const result = dataUrl.match(urlRegex);
+    const result = finalUrl.match(urlRegex);
     if (result === null) {
       _error("WARNING: URL may not be valid...");
       await new Promise(resolve => setTimeout(resolve, 2000));
     }
   
     tableau.connectionData = JSON.stringify({
-      dataUrl,
+      finalUrl,
+      yearValue,
       method,
       delimiter,
       encoding,
@@ -172,7 +214,7 @@ async function _submitDataToTableau() {
 }
   console.log("6");
 // Gets data from CSV URL
-async function _retrieveCSVData({ dataUrl, method, token, encoding }) {
+async function _retrieveCSVData({ finalUrl, method, token, encoding }) {
     console.time("Fetching data");
     let result;
   
@@ -189,7 +231,7 @@ async function _retrieveCSVData({ dataUrl, method, token, encoding }) {
         options.headers["Authorization"] = `Bearer ${token}`;
       }
       console.log("a");
-      const response = await fetch(dataUrl, options);
+      const response = await fetch(finalUrl, options);
       if (encoding && encoding !== "") {
         let buffer = await response.arrayBuffer();
         const decoder = new TextDecoder(encoding);
@@ -210,7 +252,7 @@ async function _retrieveCSVData({ dataUrl, method, token, encoding }) {
             encoding
           })
         };
-        const response = await fetch("/proxy/" + dataUrl, options);
+        const response = await fetch("/proxy/" + finalUrl, options);
         result = await response.text();
       } catch (error) {
         if (tableau.phase !== "interactive") {
