@@ -102,40 +102,32 @@ console.log("3");
 myConnector.getData = async function(table, doneCallback){
 
     //variables to keep track of the number of years choosen
-    let moreYears = true;
-    let yearCount = 0;
-    do{
-      // let dateString = yearValue [0];
-      console.time("Getting data");
-      let conData = JSON.parse(tableau.connectionData);
-      let dataUrl = conData.dataUrl;
-      let yearValue = conData.yearValue;
-      //creating the csv url
-      let dataUrlPrefix = "https://educationdata.urban.org/csv/ipeds/colleges_ipeds_completions-2digcip_";
-      // let dataUrlPrefix = dataUrl.slice(0, 77)
-      let extension = ".csv";
-      let yearinit = yearValue[0];
-      let yearMax = yearValue.length;
-      let finalUrl = `${dataUrlPrefix}${yearinit}${extension}`;
-      console.log(`Premye mwa a: ${yearinit}`);
-      let method = conData.method;
+    let conData = JSON.parse(tableau.connectionData);
+    let dataUrl = conData.dataUrl;
+    let yearArray = conData.yearValue;
+    let method = conData.method;
       let delimiter =
           conData.delimiter && conData.delimiter !== "" ? conData.delimiter : ",";
       let encoding =
           conData.encoding && conData.encoding !== "" ? conData.encoding : "";
       let token = tableau.password;
       let mode = conData.fastMode ? "fast" : conData.mode ? conData.mode : "typed";
-      let tableSchemas = [];
-      yearCount ++;
-      yearinit = yearValue[yearCount];
-    }
-    while(moreYears && yearCount <= yearValue.length);
-    let data =
+    //creating the csv url
+    let dataUrlPrefix = "https://educationdata.urban.org/csv/ipeds/colleges_ipeds_completions-2digcip_";
+    let dataUrlExtension = ".csv";
+    // what is this for?
+    let tableSchemas = [];
+    var rows;
+    for (let i = 0; i < yearArray.length; i++) {
+      console.time("Getting data");
+      let yearValue = yearArray[i];
+      console.log(`Pull data year ${yearValue}`);
+      let finalUrl = `${dataUrlPrefix}${yearValue}${dataUrlExtension}`;
+      data =
         savedCSVData ||
         (await _retrieveCSVData({ finalUrl, method, token, encoding }));
-    
-    let rows;
-    switch (mode) {
+
+      switch (mode) {
         case "fast":
         rows = _parse(data, delimiter, false).slice(1);
         break;
@@ -147,8 +139,10 @@ myConnector.getData = async function(table, doneCallback){
         break;
         default:
         rows = _cleanData(_parse(data, delimiter, true));
+        }
     }
-    
+    console.log(rows)
+
     let row_index = 0;
     let size = 10000;
     while (row_index < rows.length) {
