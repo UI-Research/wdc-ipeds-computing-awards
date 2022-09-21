@@ -117,15 +117,15 @@ myConnector.getData = async function(table, doneCallback){
     let dataUrlExtension = ".csv";
     // what is this for?
     let tableSchemas = [];
-    var rows;
+    var all_rows = [];
     for (let i = 0; i < yearArray.length; i++) {
       console.time("Getting data");
       let yearValue = yearArray[i];
       console.log(`Pull data year ${yearValue}`);
       let finalUrl = `${dataUrlPrefix}${yearValue}${dataUrlExtension}`;
-      data =
-        savedCSVData ||
-        (await _retrieveCSVData({ finalUrl, method, token, encoding }));
+      console.log(finalUrl)
+      //data = savedCSVData || (await _retrieveCSVData({ finalUrl, method, token, encoding }));
+      data = await _retrieveCSVData({ finalUrl, method, token, encoding });
 
       switch (mode) {
         case "fast":
@@ -140,13 +140,17 @@ myConnector.getData = async function(table, doneCallback){
         default:
         rows = _cleanData(_parse(data, delimiter, true));
         }
+
+        console.log(`Rows length ${rows.length}`);
+        all_rows = all_rows.concat(rows);
+
     }
-    console.log(rows)
+    console.log(`Combined length ${all_rows.length}`);
 
     let row_index = 0;
     let size = 10000;
-    while (row_index < rows.length) {
-        table.appendRows(rows.slice(row_index, size + row_index));
+    while (row_index < all_rows.length) {
+        table.appendRows(all_rows.slice(row_index, size + row_index));
         row_index += size;
         tableau.reportProgress("Getting row: " + row_index);
     }
