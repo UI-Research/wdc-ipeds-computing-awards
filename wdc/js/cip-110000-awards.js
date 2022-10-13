@@ -4,6 +4,37 @@ let savedCSVData; // Always a string
 // Schema for Institution/College
 institution_column_names = ["unitid_year", "unitid", "year", "inst_name", "state_abbr", "zip", "county_fips",
         "region", "cbsa", "congress_district_id", "inst_control", "institution_level", "hbcu", "tribal_college", "city"]
+institution_column_datatype = {"unitid_year": "string",
+                            "unitid":"string",
+                            "year":"date",
+                            "inst_name":"string",
+                            "state_abbr":"string",
+                            "zip":"string",
+                            "county_fips":"string",
+                            "region":"string",
+                            "cbsa":"string",
+                            "congress_district_id":"string",
+                            "inst_control":"string",
+                            "institution_level":"string",
+                            "hbcu":"string",
+                            "tribal_college":"string",
+                            "city":"string"}
+institution_column_georole = {
+                            "state_abbr": "state_province",
+                            "congress_district_id": "congressional_district",
+                            }
+awards_column_names = ["unitid_year", "unitid", "year", "fips", "cipcode", "award_level", "majornum", "sex", "race", "awards"]
+awards_column_datatype = {"unitid_year": "string",
+                      "unitid": "string",
+                      "year": "string",
+                      "fips": "string",
+                      "cipcode": "string",
+                      "award_level": "string",
+                      "majornum": "string",
+                      "sex": "string",
+                      "race": "string",
+                      "awards": "int"
+                      }
 // Create the connector object
 var myConnector = tableau.makeConnector();
 console.log("1");
@@ -33,7 +64,7 @@ console.log("2");
 // Define the schema
 myConnector.getSchema = async function(schemaCallback) {
 
-    // Standard connection specifies pre-joined tables
+        // Standard connection specifies pre-joined tables
         var standardConnection = {
             "alias": "Joined awards data",
             "tables": [{
@@ -56,18 +87,48 @@ myConnector.getSchema = async function(schemaCallback) {
             }]
         };
 
-
-        var var_description = {};
-        var var_label = {};
+        // Get metadata
         var variable_metadata = await fetch('https://educationdata-stg.urban.org/api/v1/api-variables/?mode=tableauwdc')
             .then(response => response.json());
         var variable_metadata_feat = variable_metadata.results;
+        var var_description = {};
+        var var_label = {};
+        var var_label_variable_list = ["award_level", "majornum", "sex", "race", "region","inst_control", "institution_level"]
+        var label_dictionary = {}
+        var_label_variable_list.forEach(item =>
+            label_dictionary[item] = {}
+        );
         variable_metadata_feat.forEach(function (arrayItem) {
-           var_description[arrayItem.variable] = arrayItem.description;
-           var_label[arrayItem.variable] = arrayItem.label;
+            var_description[arrayItem.variable] = arrayItem.description;
+            var_label[arrayItem.variable] = arrayItem.label;
+
+            if(var_label_variable_list.includes(arrayItem.format_name)){
+                label_dictionary[arrayItem.format_name][arrayItem.code] = arrayItem.code_label.split(" - ")[1]
+                if(arrayItem.format_name=="region"){
+                    label_dictionary[arrayItem.format_name][arrayItem.code] = label_dictionary[arrayItem.format_name][arrayItem.code].split(":")[0]
+                };
+            };
         });
 
-        // Schema for Completion
+        // get completion column data
+        let completionCols = _getColumnData(awards_column_names, awards_column_datatype, [], var_label, var_description);
+
+        let completionTable = {
+            id: "awards",
+            alias: "CIP 11 Awards",
+            columns: completionCols
+        };
+
+        // get institution column data
+        let institutionCols = _getColumnData(institution_column_names, institution_column_datatype, institution_column_georole, var_label, var_description);
+
+       let institutionTable = {
+            id: "institution",
+            alias: "Institution",
+            columns: institutionCols
+        };
+
+        /*        // Schema for Completion
         let completionCols = [
             {
                 id: "unitid_year",
@@ -85,6 +146,12 @@ myConnector.getSchema = async function(schemaCallback) {
                 alias: var_label["year"],
                 dataType: tableau.dataTypeEnum.string,
                 description: var_description["year"]
+            },
+            {
+                id: "fips",
+                alias: var_label["fips"],
+                dataType: tableau.dataTypeEnum.string,
+                description: var_description["fips"]
             },
             {
                 id: "cipcode",
@@ -122,16 +189,10 @@ myConnector.getSchema = async function(schemaCallback) {
                 dataType: tableau.dataTypeEnum.int,
                 description: var_description["awards"]
             }
-        ];
-
-        let completionTable = {
-            id: "awards",
-            alias: "CIP 11 Awards",
-            columns: completionCols
-        };
+        ];*/
 
         // Schema for Institution/College
-        let institutionCols = [
+        /*let institutionCols = [
             {
                 // unitid_year
                 id: institution_column_names[0],
@@ -238,13 +299,7 @@ myConnector.getSchema = async function(schemaCallback) {
                 dataType: tableau.dataTypeEnum.string,
                 description: var_description[institution_column_names[14]]
             }
-        ];
-
-        let institutionTable = {
-            id: "institution",
-            alias: "Institution",
-            columns: institutionCols
-        };
+        ];*/
         //schemaCallback([completionTable, institutionTable]);
         schemaCallback([completionTable, institutionTable], [standardConnection]);
 };
@@ -289,15 +344,18 @@ myConnector.getData = async function(table, doneCallback){
                 rows = _cleanData(_parse(data, delimiter, true));
                 break;
                 case "loosetyped":
-                rows = _parse(data, delimiter, true).slice(1);
+                parsed_data = _parse(data, delimiter, true)
+                rows = parsed_data.slice(1);
+                header = parsed_data[0];
                 break;
                 default:
                 rows = _cleanData(_parse(data, delimiter, true));
                 }
 
-                console.log(`Rows length ${rows.length}`);
-                all_rows = all_rows.concat(rows);
+                rows = _orderRows(awards_column_names, header, rows)
 
+                // console.log(`Rows length ${rows.length}`);
+                all_rows = all_rows.concat(rows);
             }
             console.log(`Combined length ${all_rows.length}`);
 
@@ -338,39 +396,41 @@ myConnector.getData = async function(table, doneCallback){
               rows = _cleanData(_parse(data, delimiter, true));
               }
 
-            console.log(header)
-            console.log(header)
-            var headerLength = header.length;
-            institutionColIndexes = [];
-            header_col_count = 0;
-            for (var i = 0; i < headerLength; i++) {
-                if(institution_column_names.includes(header[i])){
-                    //console.log(header[i]);
-                    institutionColIndexes.push(i);
-                    if (header[i] ==  "year"){
-                        year_index = i;
-                    }
-                }
-            }
+            year_index = _getYearIndex(institution_column_names, header);
+            yearArray = yearArray.map(Number);
+            const rows_filtered_to_years = rows.filter(row => yearArray.includes(row[year_index]));
+            rows_ordered = _orderRows(institution_column_names, header, rows_filtered_to_years);
 
-            rows_subset = []
-            rows.forEach((element) => {
-              row_year = element[year_index].toString()
-              console.log(row_year);
-              console.log(yearArray)
-              if (yearArray.includes(element[row_year])){
-                  console.log("IN ARRAY INDEX")
-                  row_subset = institutionColIndexes.map(i => element[i]);
-                  row_subset.unshift(row_subset[0] + '-' + row_subset[1]);
-                  rows_subset.push(row_subset);
-                  }
+            // get variable metadata
+            var variable_metadata = await fetch('https://educationdata-stg.urban.org/api/v1/api-values/?mode=tableauwdc')
+            .then(response => response.json());
+            var variable_metadata_feat = variable_metadata.results;
+            var var_label_variable_list = ["award_level", "majornum", "sex", "race", "region","inst_control", "institution_level"]
+            var label_dictionary = {}
+            var_label_variable_list.forEach(item =>
+                label_dictionary[item] = {}
+            );
+
+            variable_metadata_feat.forEach(function (arrayItem) {
+                if(var_label_variable_list.includes(arrayItem.format_name)){
+                    label_dictionary[arrayItem.format_name][arrayItem.code] = arrayItem.code_label.split(" - ")[1]
+                    if(arrayItem.format_name=="region"){
+                        label_dictionary[arrayItem.format_name][arrayItem.code] = label_dictionary[arrayItem.format_name][arrayItem.code].split(":")[0]
+                    };
+                };
             });
+            console.log(variable_metadata);
 
+            //rows_ordered = rows_ordered.slice(0, 50)
+            // FIGURE OUT WHAT TO DO WITH NULL VALUES
+            // NEED TO UPDATE THIS FUNCTION TO WORK FOR ZIPS THAT START WITH 0!!
+            rows_final = truncate_str(rows_ordered, "zip", institution_column_names, 0, 5)
+            rows_final = pad_str(rows_final, "county_fips", institution_column_names, 5)
+            rows_final = _recodeVarWithMetadataLabel(rows_final, "institution_level", institution_column_names, label_dictionary)
+            console.log("finished recoding")
 
-            console.log(institutionColIndexes)
-
-            while (row_index < rows_subset.length) {
-                table.appendRows(rows_subset.slice(row_index, size + row_index));
+            while (row_index < rows_final.length) {
+                table.appendRows(rows_final.slice(row_index, size + row_index));
                 row_index += size;
                 tableau.reportProgress("Getting row: " + row_index);
             }
@@ -386,6 +446,132 @@ tableau.registerConnector(myConnector);
 console.log("b");
 
 console.log("5");
+/*function _getVariableMetadata(){
+        // Get metadata
+        var variable_metadata = await fetch('https://educationdata-stg.urban.org/api/v1/api-variables/?mode=tableauwdc')
+            .then(response => response.json());
+        var variable_metadata_feat = variable_metadata.results;
+        var var_label_variable_list = ["award_level", "majornum", "sex", "race", "region","inst_control", "institution_level"]
+        var label_dictionary = {}
+        var_label_variable_list.forEach(item =>
+            label_dictionary[item] = {}
+        );
+        variable_metadata_feat.forEach(function (arrayItem) {
+            if(var_label_variable_list.includes(arrayItem.format_name)){
+                label_dictionary[arrayItem.format_name][arrayItem.code] = arrayItem.code_label.split(" - ")[1]
+                if(arrayItem.format_name=="region"){
+                    label_dictionary[arrayItem.format_name][arrayItem.code] = label_dictionary[arrayItem.format_name][arrayItem.code].split(":")[0]
+                };
+            };
+        });
+
+        return label_dictionary
+}*/
+
+function _recodeVarWithMetadataLabel(data, var_name, column_header, label_dictionary){
+    var keys = Object.keys(label_dictionary);
+    keys.forEach(function(key){
+        console.log(key, label_dictionary[key]);
+    });
+// recode award_level using metadata labels
+    index = column_header.indexOf(var_name);
+    const data_cleaned = data.map(obj => {
+        console.log("row")
+        console.log(obj[index])
+        console.log(label_dictionary[var_name][obj[index]])
+        if(obj[index] != null){
+            obj[index] = label_dictionary[var_name][obj[index]];
+        } else {
+            obj[index] = null;
+        };
+        return obj;
+    });
+    return data_cleaned
+}
+
+function truncate_str(data, column, column_header, start_str, end_str){
+    index = column_header.indexOf(column);
+    const data_cleaned = data.map(obj => {
+        obj[index] = obj[index].toString().substring(start_str,end_str);
+        return obj;
+    });
+
+    return data_cleaned
+}
+
+const zeroPad = (num, places) => String(num).padStart(places, '0')
+
+function pad_str(data, column, column_header, pad_value){
+    index = column_header.indexOf(column);
+    const data_cleaned = data.map(obj => {
+        if(obj[index] != null){
+            obj[index] = zeroPad(obj[index], pad_value);
+        } else{
+            obj[index] = null;
+        }
+        return obj;
+    });
+
+    return data_cleaned
+}
+
+function _getColumnData(column_names, column_datatype, column_georole, var_label, var_description){
+    cols=[]
+    headerLength = column_names.length
+    for (var i = 0; i < headerLength; i++){
+        field = column_names[i];
+        field_description = {
+            id: field,
+            alias: var_label[field],
+            dataType: column_datatype[field],
+            description: var_description[field]
+            }
+        if (field in column_georole){
+            field_description["geoRole"] = column_georole[field]
+        }
+        cols.push(field_description)
+   }
+
+   return cols
+}
+
+function _orderRows(tableau_col_order, csv_header_full, data) {
+    var headerLength = header.length;
+    institutionColIndexes = [];
+    header_col_count = 0;
+    for (var i = 0; i < headerLength; i++) {
+        if(institution_column_names.includes(header[i])){
+        //console.log(header[i]);
+        institutionColIndexes.push(i);
+            if (header[i] ==  "year"){
+                year_index = i;
+            }
+            if (header[i] ==  "unitid"){
+                unitid_index = i;
+            }
+        }
+    }
+
+    const data_ordered = data.map(obj => {
+              obj = institutionColIndexes.map(i => obj[i]);
+              obj.unshift(obj[unitid_index] + '-' + obj[year_index]);
+              return obj;
+            });
+
+ return data_ordered
+}
+
+function _getYearIndex(tableau_col_order, csv_header_full) {
+    var headerLength = header.length;
+    institutionColIndexes = [];
+    header_col_count = 0;
+    for (var i = 0; i < headerLength; i++) {
+        if (header[i] ==  "year"){
+            year_index = i;
+        }
+    }
+ return year_index
+}
 // Grabs wanted fields and submits configuration to Tableau
 async function _submitDataToTableau() {
     let dataUrl = $("#url")
