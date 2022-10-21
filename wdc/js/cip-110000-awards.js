@@ -393,11 +393,14 @@ myConnector.getData = async function(table, doneCallback){
               default:
               rows = _cleanData(_parse(data, delimiter, true));
               }
-
             year_index = _getYearIndex(institution_column_names, header);
             yearArray = yearArray.map(Number);
             const rows_filtered_to_years = rows.filter(row => yearArray.includes(row[year_index]));
+            console.log("rows:")
+            console.log(header)
+            console.log(rows_filtered_to_years)
             rows_ordered = _orderRows(institution_column_names, header, rows_filtered_to_years);
+            console.log(rows_ordered)
 
             // get variable metadata
             var variable_metadata = await fetch('https://educationdata-stg.urban.org/api/v1/api-values/?mode=tableauwdc')
@@ -424,7 +427,7 @@ myConnector.getData = async function(table, doneCallback){
             // NEED TO UPDATE THIS FUNCTION TO WORK FOR ZIPS THAT START WITH 0!!
             rows_final = truncate_str(rows_ordered, "zip", institution_column_names, 0, 5)
             rows_final = pad_str(rows_final, "county_fips", institution_column_names, 5)
-            rows_final = _recodeVarWithMetadataLabel(rows_final, "institution_level", institution_column_names, label_dictionary)
+            rows_final = _recodeVarWithMetadataLabel(rows_final, ["region","inst_control", "institution_level"], institution_column_names, label_dictionary)
             console.log("finished recoding")
 
             while (row_index < rows_final.length) {
@@ -464,22 +467,28 @@ console.log("5");
         return label_dictionary
 }*/
 
-function _recodeVarWithMetadataLabel(data, var_name, column_header, label_dictionary){
+function _recodeVarWithMetadataLabel(data, var_list, column_header, label_dictionary){
     var keys = Object.keys(label_dictionary);
     keys.forEach(function(key){
         console.log(key, label_dictionary[key]);
     });
 // recode award_level using metadata labels
-    index = column_header.indexOf(var_name);
+
     const data_cleaned = data.map(obj => {
         console.log("row")
-        console.log(obj[index])
-        console.log(label_dictionary[var_name][obj[index]])
-        if(obj[index] != null){
-            obj[index] = label_dictionary[var_name][obj[index]];
-        } else {
-            obj[index] = null;
-        };
+        var_list.forEach(function(var_name){
+            console.log(var_name)
+            index = column_header.indexOf(var_name);
+            console.log(obj[index])
+            if(obj[index] != null){
+                obj[index] = label_dictionary[var_name][obj[index]];
+            } else {
+                obj[index] = null;
+            };
+            console.log("after change...")
+            console.log(obj[index])
+            console.log("-----------------")
+        });
         return obj;
     });
     return data_cleaned
@@ -532,27 +541,31 @@ function _getColumnData(column_names, column_datatype, column_georole, var_label
 }
 
 function _orderRows(tableau_col_order, csv_header_full, data) {
-    var headerLength = header.length;
-    institutionColIndexes = [];
-    header_col_count = 0;
-    for (var i = 0; i < headerLength; i++) {
-        if(institution_column_names.includes(header[i])){
-        //console.log(header[i]);
-        institutionColIndexes.push(i);
-            if (header[i] ==  "year"){
-                year_index = i;
+    var tableau_col_length = tableau_col_order.length;
+    tableau_col_indexes = [];
+    console.log(typeof(tableau_col_shifted))
+    tableau_col_order.forEach(function(tableau_col){
+        if(tableau_col != 'unitid_year'){
+            index = csv_header_full.indexOf(tableau_col);
+            tableau_col_indexes.push(index);
+
+            if (tableau_col ==  "year"){
+                year_index = index;
             }
-            if (header[i] ==  "unitid"){
-                unitid_index = i;
+            if (tableau_col ==  "unitid"){
+                unitid_index = index;
             }
         }
-    }
+   });
 
+    console.log(data)
     const data_ordered = data.map(obj => {
-              obj = institutionColIndexes.map(i => obj[i]);
-              obj.unshift(obj[unitid_index] + '-' + obj[year_index]);
-              return obj;
-            });
+        obj = tableau_col_indexes.map(i => obj[i]);
+        obj.unshift(obj[unitid_index] + '-' + obj[year_index]);
+        return obj;
+    });
+    console.log(tableau_col_order)
+    console.log(data_ordered)
 
  return data_ordered
 }
@@ -594,14 +607,14 @@ async function _submitDataToTableau() {
         ? "typed"
         : "loosetyped";
     if (!finalUrl) return _error("No data entered.");
-  
+
     const urlRegex = /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/|ftp:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/gm;
     const result = finalUrl.match(urlRegex);
     if (result === null) {
       _error("WARNING: URL may not be valid...");
       await new Promise(resolve => setTimeout(resolve, 2000));
     }
-  
+
     tableau.connectionData = JSON.stringify({
       finalUrl,
       yearValue,
@@ -611,23 +624,23 @@ async function _submitDataToTableau() {
       mode
     });
     tableau.password = token;
-  
+
     tableau.submit();
 }
 // Gets data from CSV URL
 async function _retrieveCSVData({ finalUrl, method, token, encoding }) {
     console.time("Fetching data");
     let result;
-  
+
     try {
       let options = {
         method,
-        
+
         headers: {
           "Content-Type": "application/json"
         }
       };
-  
+
       if (token) {
         options.headers["Authorization"] = `Bearer ${token}`;
       }
