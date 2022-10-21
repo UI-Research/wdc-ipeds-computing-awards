@@ -632,6 +632,7 @@ async function _retrieveCSVData({ finalUrl, method, token, encoding }) {
         options.headers["Authorization"] = `Bearer ${token}`;
       }
       const response = await fetch(finalUrl, options);
+      console.log("b");
       if (encoding && encoding !== "") {
         let buffer = await response.arrayBuffer();
         const decoder = new TextDecoder(encoding);
