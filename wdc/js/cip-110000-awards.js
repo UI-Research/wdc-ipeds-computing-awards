@@ -37,7 +37,6 @@ awards_column_datatype = {"unitid_year": "string",
                       }
 // Create the connector object
 var myConnector = tableau.makeConnector();
-console.log("1");
 // Populate inputs if they were previously entered
 myConnector.init = function(initCallback) {
     if (
@@ -60,7 +59,7 @@ myConnector.init = function(initCallback) {
     }
     initCallback();
 };
-console.log("2");
+
 // Define the schema
 myConnector.getSchema = async function(schemaCallback) {
 
@@ -303,7 +302,6 @@ myConnector.getSchema = async function(schemaCallback) {
         //schemaCallback([completionTable, institutionTable]);
         schemaCallback([completionTable, institutionTable], [standardConnection]);
 };
-console.log("3");
 // Download the data
 myConnector.getData = async function(table, doneCallback){
 
@@ -439,9 +437,7 @@ myConnector.getData = async function(table, doneCallback){
             break;
     };
 };
-console.log("4");
 tableau.connectionName = "CSV Data";
-console.log("a");
 tableau.registerConnector(myConnector);
 console.log("b");
 
@@ -572,13 +568,14 @@ function _getYearIndex(tableau_col_order, csv_header_full) {
     }
  return year_index
 }
+
 // Grabs wanted fields and submits configuration to Tableau
 async function _submitDataToTableau() {
     let dataUrl = $("#url")
       .val()
       .trim();
     let yearValue = $("#choosen-years").val();
-    console.log(`eseye sa: ${yearValue}`);
+    console.log(`Year Value: ${yearValue}`);
     // let yearValue = conData.yearValue;
     //creating the csv url
     let dataUrlPrefix = "https://educationdata.urban.org/csv/ipeds/colleges_ipeds_completions-2digcip_";
@@ -617,7 +614,6 @@ async function _submitDataToTableau() {
   
     tableau.submit();
 }
-  console.log("6");
 // Gets data from CSV URL
 async function _retrieveCSVData({ finalUrl, method, token, encoding }) {
     console.time("Fetching data");
@@ -635,7 +631,6 @@ async function _retrieveCSVData({ finalUrl, method, token, encoding }) {
       if (token) {
         options.headers["Authorization"] = `Bearer ${token}`;
       }
-      console.log("a");
       const response = await fetch(finalUrl, options);
       if (encoding && encoding !== "") {
         let buffer = await response.arrayBuffer();
@@ -668,7 +663,6 @@ async function _retrieveCSVData({ finalUrl, method, token, encoding }) {
         return;
       }
     }
-    console.log("b");
     if (!result || result.error) {
       if (tableau.phase !== "interactive") {
         console.error(result.error);
@@ -682,7 +676,6 @@ async function _retrieveCSVData({ finalUrl, method, token, encoding }) {
     console.timeEnd("Fetching data");
     return savedCSVData;
 }
-  console.log("7");
 // Sanitizes headers so they work in Tableau without duplicates
 function _sanitizeKeys(fields) {
 console.time("Sanitizing keys");
