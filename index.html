@@ -26,183 +26,174 @@
 </head>
 
 <body>
-    <div class="container container-table">
-        <div class="row vertical-center-row">
-            <div class="">
-            <header>
-                <div class="top-banner">
-                    <span> 
-                        <img src="/wdc/img/urban_logo.png" alt="urban" class="logo">
-                    </span>
-                    <span class="vertical"></span>
-                    <span class="tagline"> <h3 class="tagline-text">Center on Education Data and Policy</h3></span>
-                </div>
-                <div class="header-image-container">
-                    <img src="/wdc/img/hero_image.png" alt="education" class="header-image">
-                </div>
-            </header>
-            <section class="content-section">
-                <div class="title">
-                    <h3> Education Data Portal Web Data Connector </h3>
-                    <h3> IPEDS Awards for CIP 11 </h3>
-                </div>
-                <div class="rules">
-                    <h5>Select one state and up to three years for which you'd like to view awards and institution data.</h5>
-                    <h6>"awards" table includes Awards data for CIP 11</h6>
-                    <h6>"institution" table includes institution related data</h6>
-                    <h6>"Joined awards data" table is a left join between "awards" (left) and "institution" (right)</h6>
-                </div>
-                <form class="form form-group">
+  <div class="container container-table">
+    <div class="row vertical-center-row">
+      <div class="">
+        <header>
+            <div class="top-banner">
+                <span> 
+                    <img src="/wdc/img/urban_logo.png" alt="urban" class="logo">
+                </span>
+                <span class="vertical"></span>
+                <span class="tagline"> <h3 class="tagline-text">Center on Education Data and Policy</h3></span>
+            </div>
+            <div class="header-image-container">
+                <img src="/wdc/img/hero_image.png" alt="education" class="header-image">
+            </div>
+        </header>
+        <section class="content-section">
+          <div class="title">
+              <h3> Education Data Portal Web Data Connector </h3>
+          </div>
 
-                    <div class="field">
-                        <label class="label">Enter your CSV's URL:</label>
-                        <div class="control">
-                          <input class="input" id="url" type="url" />
-                        </div>
-                    </div>
-                    
-                    <div class="years">
-                      <select id="choosen-years" class="selectpicker" multiple data-max-options="3" title="Select Year(s)">
-                        <option value="1991">1991</option>
-                        <option value="1992">1992</option>
-                        <option value="1993">1993</option>
-                        <option value="1994">1994</option>
-                        <option value="1995">1995</option>
-                        <option value="1996">1996</option>
-                        <option value="1997">1997</option>
-                        <option value="1998">1998</option>
-                        <option value="1999">1999</option>
-                        <option value="2000">2000</option>
-                        <option value="2001">2001</option>
-                        <option value="2002">2002</option>
-                        <option value="2003">2003</option>
-                        <option value="2004">2004</option>
-                        <option value="2005">2005</option>
-                        <option value="2006">2006</option>
-                        <option value="2007">2007</option>
-                        <option value="2008">2008</option>
-                        <option value="2009">2009</option>
-                        <option value="2010">2010</option>
-                        <option value="2011">2011</option>
-                        <option value="2012">2012</option>
-                        <option value="2013">2013</option>
-                        <option value="2014">2014</option>
-                        <option value="2015">2015</option>
-                        <option value="2016">2016</option>
-                        <option value="2017">2017</option>
-                        <option value="2018">2018</option>
-                        <option value="2019">2019</option>
+          <div class="rules">
+              <h5>Use the dropdown menu to select up to three years for which you'd like to view higher education graduation data.</h5>
+              <h6>Once you have your dataset, you may apply filters for sex, race, and other institutional criteria.</h6>
+          </div>
+
+          <form class="form form-group">
+              
+            <div class="years">
+              <select id="choosen-years" class="selectpicker align" multiple data-max-options="3" title="Select Year(s)">
+                <option value="1991">1991</option>
+                <option value="1992">1992</option>
+                <option value="1993">1993</option>
+                <option value="1994">1994</option>
+                <option value="1995">1995</option>
+                <option value="1996">1996</option>
+                <option value="1997">1997</option>
+                <option value="1998">1998</option>
+                <option value="1999">1999</option>
+                <option value="2000">2000</option>
+                <option value="2001">2001</option>
+                <option value="2002">2002</option>
+                <option value="2003">2003</option>
+                <option value="2004">2004</option>
+                <option value="2005">2005</option>
+                <option value="2006">2006</option>
+                <option value="2007">2007</option>
+                <option value="2008">2008</option>
+                <option value="2009">2009</option>
+                <option value="2010">2010</option>
+                <option value="2011">2011</option>
+                <option value="2012">2012</option>
+                <option value="2013">2013</option>
+                <option value="2014">2014</option>
+                <option value="2015">2015</option>
+                <option value="2016">2016</option>
+                <option value="2017">2017</option>
+                <option value="2018">2018</option>
+                <option value="2019">2019</option>
+              </select>
+              <div class="buttons">
+                <button
+                  class="button is-primary is-fullwidth align button-data"
+                  onclick="_submitDataToTableau()"
+                >
+                  VIEW DATA
+                </button>
+              </div>
+            </div>
+            <p class="advanced" onclick="toggleAdvanced()">Advanced +</p>
+            <div class="hidden block" id="advanced">
+              <div class="field">
+                  <label class="label is-small">Method</label>
+                  <div class="control">
+                    <div class="select is-fullwidth is-small">
+                      <select id="method">
+                        <option value="GET" selected>GET</option>
+                        <option value="POST">POST</option>
                       </select>
                     </div>
-                      <p class="advanced" onclick="toggleAdvanced()">Advanced +</p>
-                      <div class="hidden block" id="advanced">
-                        <div class="field">
-                          <label class="label is-small">Method</label>
-                          <div class="control">
-                            <div class="select is-fullwidth is-small">
-                              <select id="method">
-                                <option value="GET" selected>GET</option>
-                                <option value="POST">POST</option>
-                              </select>
-                            </div>
-                          </div>
-                        </div>
-            
-                        <div class="field">
-                          <label class="label is-small">Bearer token:</label>
-                          <div class="control">
-                            <input class="input is-small" id="token" type="text" />
-                          </div>
-                        </div>
-            
-                        <div class="field">
-                          <label class="label is-small">Custom delimiter:</label>
-                          <div class="control">
-                            <input
-                              class="input is-small"
-                              id="delimiter"
-                              type="text"
-                              maxlength="1"
-                              size="1"
-                              placeholder="One character, default is comma"
-                            />
-                          </div>
-                        </div>
-                        <div class="field">
-                          <label class="label is-small"
-                            >Encoding:
-                            <a
-                              href="https://github.com/ashtuchkin/iconv-lite/wiki/Supported-Encodings"
-                              target="_blank"
-                              >supported</a
-                            ></label
-                          >
-                          <div class="control">
-                            <input
-                              class="input is-small"
-                              id="encoding"
-                              type="text"
-                              placeholder="Ex: iso-8859-1, default is utf-8"
-                            />
-                          </div>
-                        </div>
-                      </div>
-            
-                      <div class="tabs is-toggle is-fullwidth is-small">
-                        <ul>
-                          <li id="typed">
-                            <a
-                              href="javascript:_setMode('typed')"
-                              class="is-flex is-flex-direction-column"
-                            >
-                              <span><b>Strict Typed Mode</b></span>
-                              <span>Infer column data types and try to clean data</span>
-                              <span><i>Slow, don't use with large files</i></span>
-                            </a>
-                          </li>
-                          <li id="loosetyped" class="is-active">
-                            <a
-                              href="javascript:_setMode('loosetyped')"
-                              class="is-flex is-flex-direction-column"
-                            >
-                              <span><b>Loose Typed Mode</b></span>
-                              <span>Infer column data types but don't clean data</span>
-                              <span><i>Faster, use with well structured files</i></span>
-                            </a>
-                          </li>
-                          <li id="fast">
-                            <a
-                              href="javascript:_setMode('fast')"
-                              class="is-flex is-flex-direction-column"
-                            >
-                              <span><b>Fast Mode</b></span>
-                              <span>Bring all values in as strings, no cleaning</span>
-                              <span><i>Fastest, but you manually set data types</i></span>
-                            </a>
-                          </li>
-                        </ul>
-                      </div>
-                    
-                      <div class="buttons">
-                        <button
-                          class="button is-primary is-fullwidth"
-                          onclick="_submitDataToTableau()"
-                        >
-                          Get Data!
-                        </button>
-                    </div>
-                </form>
-
-                <div class="rules" id="error-message">
-                    <h6 style="color:red;">You must select one state and up to three years.</h6>
+                  </div>
+              </div>
+    
+              <div class="field">
+                <label class="label is-small">Bearer token:</label>
+                <div class="control">
+                  <input class="input is-small" id="token" type="text" />
                 </div>
-            <!--<h6 class="rules">Select a state, and up to three years.</h6>-->
-            <!--<input type="text" class="form-control form-control-lg" id="year" placeholder="2015">-->
-            </section>
-
+              </div>
+    
+              <div class="field">
+                <label class="label is-small">Custom delimiter:</label>
+                <div class="control">
+                  <input
+                    class="input is-small"
+                    id="delimiter"
+                    type="text"
+                    maxlength="1"
+                    size="1"
+                    placeholder="One character, default is comma"
+                  />
+                </div>
+              </div>
+              <div class="field">
+                <label class="label is-small"
+                  >Encoding:
+                  <a
+                    href="https://github.com/ashtuchkin/iconv-lite/wiki/Supported-Encodings"
+                    target="_blank"
+                    >supported</a
+                  ></label
+                >
+                <div class="control">
+                  <input
+                    class="input is-small"
+                    id="encoding"
+                    type="text"
+                    placeholder="Ex: iso-8859-1, default is utf-8"
+                  />
+                </div>
+              </div>
             </div>
-        </div>
+      
+            <div class="tabs is-toggle is-fullwidth is-small">
+              <ul>
+                <li id="typed">
+                  <a
+                    href="javascript:_setMode('typed')"
+                    class="is-flex is-flex-direction-column"
+                  >
+                    <span><b>Strict Typed Mode</b></span>
+                    <span>Infer column data types and try to clean data</span>
+                    <span><i>Slow, don't use with large files</i></span>
+                  </a>
+                </li>
+                <li id="loosetyped" class="is-active">
+                  <a
+                    href="javascript:_setMode('loosetyped')"
+                    class="is-flex is-flex-direction-column"
+                  >
+                    <span><b>Loose Typed Mode</b></span>
+                    <span>Infer column data types but don't clean data</span>
+                    <span><i>Faster, use with well structured files</i></span>
+                  </a>
+                </li>
+                <li id="fast">
+                  <a
+                    href="javascript:_setMode('fast')"
+                    class="is-flex is-flex-direction-column"
+                  >
+                    <span><b>Fast Mode</b></span>
+                    <span>Bring all values in as strings, no cleaning</span>
+                    <span><i>Fastest, but you manually set data types</i></span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </form>
+
+          <div class="rules" id="error-message">
+            <h6 style="color:red;">You must select one state and up to three years.</h6>
+          </div>
+          <!--<h6 class="rules">Select a state, and up to three years.</h6>-->
+          <!--<input type="text" class="form-control form-control-lg" id="year" placeholder="2015">-->
+        </section>
+
+      </div>
     </div>
+  </div>
 
     
 

@@ -54,7 +54,7 @@ body{
 }
 
 section{
-    margin-top: 20px;
+    margin-top: 32px;
     margin-left: 80px;
 }
 
@@ -65,17 +65,21 @@ section{
 }
 
 .rules{
-    margin-top: 16px;
+    margin-top: 32px;
+    margin-bottom: 32px;
 }
 h5{
     font-family: 'Lato', sans-serif;
     font-weight: 700;
     font-size: 1rem;
+    color: #353535;
+    margin-bottom: 8px;
 }
 
 h6{
     font-family: 'Lato', sans-serif;
-    font-size: 0.8rem;
+    font-size: 15px;;
+    color: #353535;
 }
 
 .form-group{
@@ -87,7 +91,7 @@ h6{
 
 input[type="text"] {
     width: 236px;
-    height: 48px;
+    height: 46px;
     display: inline;
     border-color: #D2D2D2;
 }
@@ -151,7 +155,7 @@ input[type="text"] {
     height: 48px;
     background-color: #FFFFFF;
     border: 1px solid #ced4da;
-    border-radius: 0px;;
+    border-radius: 0px;
 }
 
 .dropdown.bootstrap-select.show-tick{
@@ -178,4 +182,32 @@ input[type="text"] {
 
 .dropdown-menu li.selected > a.selected {
     color: #1696D2;
+}
+
+/* Hidden Features */
+#advanced {
+    display: none;
+}
+
+.advanced{
+    display: none;
+}
+
+.tabs{
+    display: none;
+}
+
+.button-data{
+    color: #1696D2;
+    height: 48px;
+    width: 152px;
+    margin-top: -47px;
+    margin-right: 220px;
+    border: 2px solid #1696D2;
+    font-family: 'Lato', sans-serif;
+    font-size: 18px;
+}
+
+.align{
+    float: right;
 }
