@@ -357,10 +357,36 @@ myConnector.getData = async function(table, doneCallback){
             }
             console.log(`Combined length ${all_rows.length}`);
 
+            // get variable metadata
+            var variable_metadata = await fetch('https://educationdata-stg.urban.org/api/v1/api-values/?mode=tableauwdc')
+            .then(response => response.json());
+            var variable_metadata_feat = variable_metadata.results;
+            var var_label_variable_list = ["award_level", "majornum", "sex", "race"]
+            var label_dictionary = {}
+            var_label_variable_list.forEach(item =>
+                label_dictionary[item] = {}
+            );
+
+            variable_metadata_feat.forEach(function (arrayItem) {
+                if(var_label_variable_list.includes(arrayItem.format_name)){
+                    label_dictionary[arrayItem.format_name][arrayItem.code] = arrayItem.code_label.split(" - ")[1]
+                    if(arrayItem.format_name=="region"){
+                        label_dictionary[arrayItem.format_name][arrayItem.code] = label_dictionary[arrayItem.format_name][arrayItem.code].split(":")[0]
+                    };
+                };
+            });
+            console.log(variable_metadata);
+
+            console.log(label_dictionary)
+
+            rows_final = _recodeVarWithMetadataLabel(all_rows, var_label_variable_list, awards_column_names, label_dictionary)
+
             //let row_index = 0;
             //let size = 10000;
-            while (row_index < all_rows.length) {
-                table.appendRows(all_rows.slice(row_index, size + row_index));
+            while (row_index < rows_final.length) {
+                rows_subset = all_rows.slice(row_index, size + row_index)
+                rows_subset_recoded = _recodeVarWithMetadataLabel(rows_subset, var_label_variable_list, awards_column_names, label_dictionary)
+                table.appendRows(rows_subset_recoded.slice(row_index, size + row_index));
                 row_index += size;
                 tableau.reportProgress("Getting row: " + row_index);
             }
