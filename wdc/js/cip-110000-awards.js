@@ -1,10 +1,12 @@
-
 let savedCSVData; // Always a string
 
 // Schema for Institution/College
-institution_column_names = ["unitid_year", "unitid", "year", "inst_name", "state_abbr", "zip", "county_fips",
+//institution_column_names = ["unitid_year", "unitid", "year", "inst_name", "state_abbr", "zip", "county_fips",
+//        "region", "cbsa", "congress_district_id", "inst_control", "institution_level", "hbcu", "tribal_college", "city"]
+institution_column_names = ["unitid", "year", "inst_name", "state_abbr", "zip", "county_fips",
         "region", "cbsa", "congress_district_id", "inst_control", "institution_level", "hbcu", "tribal_college", "city"]
-institution_column_datatype = {"unitid_year": "string",
+institution_column_datatype = {
+                            //"unitid_year": "string",
                             "unitid":"string",
                             "year":"date",
                             "inst_name":"string",
@@ -23,10 +25,12 @@ institution_column_georole = {
                             "state_abbr": "state_province",
                             "congress_district_id": "congressional_district",
                             }
-awards_column_names = ["unitid_year", "unitid", "year", "fips", "cipcode", "award_level", "majornum", "sex", "race", "awards"]
-awards_column_datatype = {"unitid_year": "string",
+//awards_column_names = ["unitid_year", "unitid", "year", "fips", "cipcode", "award_level", "majornum", "sex", "race", "awards"]
+awards_column_names = ["unitid", "year", "fips", "cipcode", "award_level", "majornum", "sex", "race", "awards"]
+awards_column_datatype = {
+                      //"unitid_year": "string",
                       "unitid": "string",
-                      "year": "string",
+                      "year": "date",
                       "fips": "string",
                       "cipcode": "string",
                       "award_level": "string",
@@ -64,7 +68,7 @@ myConnector.init = function(initCallback) {
 myConnector.getSchema = async function(schemaCallback) {
 
         // Standard connection specifies pre-joined tables
-        var standardConnection = {
+        /*var standardConnection = {
             "alias": "Joined awards data",
             "tables": [{
                 "id": "awards",
@@ -84,7 +88,7 @@ myConnector.getSchema = async function(schemaCallback) {
                 },
                 "joinType": "left"
             }]
-        };
+        };*/
 
         // Get metadata
         var variable_metadata = await fetch('https://educationdata-stg.urban.org/api/v1/api-variables/?mode=tableauwdc')
@@ -299,8 +303,8 @@ myConnector.getSchema = async function(schemaCallback) {
                 description: var_description[institution_column_names[14]]
             }
         ];*/
-        //schemaCallback([completionTable, institutionTable]);
-        schemaCallback([completionTable, institutionTable], [standardConnection]);
+        schemaCallback([completionTable, institutionTable]);
+        //schemaCallback([completionTable, institutionTable], [standardConnection]);
 };
 // Download the data
 myConnector.getData = async function(table, doneCallback){
@@ -323,14 +327,12 @@ myConnector.getData = async function(table, doneCallback){
             //creating the csv url
             let dataUrlPrefix = "https://educationdata.urban.org/csv/ipeds/colleges_ipeds_completions-2digcip_";
             let dataUrlExtension = ".csv";
-            // what is this for?
             var all_rows = [];
             for (let i = 0; i < yearArray.length; i++) {
               console.time("Getting awards data");
               let yearValue = yearArray[i];
-              console.log(`Pull data year ${yearValue}`);
               let finalUrl = `${dataUrlPrefix}${yearValue}${dataUrlExtension}`;
-              console.log(finalUrl)
+              console.log(`Pull data from ${finalUrl}`);
               //data = savedCSVData || (await _retrieveCSVData({ finalUrl, method, token, encoding }));
               data = await _retrieveCSVData({ finalUrl, method, token, encoding });
 
@@ -350,15 +352,36 @@ myConnector.getData = async function(table, doneCallback){
                 rows = _cleanData(_parse(data, delimiter, true));
                 }
 
-                rows = _orderRows(awards_column_names, header, rows)
+                //rows = _orderRows(awards_column_names, header, rows)
 
                 // console.log(`Rows length ${rows.length}`);
+                // rows= rows.slice(0, 50);
                 all_rows = all_rows.concat(rows);
             }
             console.log(`Combined length ${all_rows.length}`);
 
-            //let row_index = 0;
-            //let size = 10000;
+/*            // get variable metadata
+            var variable_metadata = await fetch('https://educationdata-stg.urban.org/api/v1/api-values/?mode=tableauwdc')
+            .then(response => response.json());
+            var variable_metadata_feat = variable_metadata.results;
+            var var_label_variable_list = ["award_level", "majornum", "sex", "race"]
+            var label_dictionary = {}
+            var_label_variable_list.forEach(item =>
+                label_dictionary[item] = {}
+            );
+            variable_metadata_feat.forEach(function (arrayItem) {
+                if(var_label_variable_list.includes(arrayItem.format_name)){
+                    label_dictionary[arrayItem.format_name][arrayItem.code] = arrayItem.code_label.split(" - ")[1]
+                    if(arrayItem.format_name=="region"){
+                        label_dictionary[arrayItem.format_name][arrayItem.code] = label_dictionary[arrayItem.format_name][arrayItem.code].split(":")[0]
+                    };
+                };
+            });
+            console.log(variable_metadata);
+            console.log(label_dictionary)
+            // recode variables
+            rows_final = _recodeVarWithMetadataLabel(all_rows, var_label_variable_list, awards_column_names, label_dictionary)*/
+
             while (row_index < all_rows.length) {
                 table.appendRows(all_rows.slice(row_index, size + row_index));
                 row_index += size;
@@ -370,12 +393,9 @@ myConnector.getData = async function(table, doneCallback){
             break;
         case 'institution':
             let finalUrl = "https://educationdata.urban.org/csv/ipeds/colleges_ipeds_directory.csv";
-            console.log(finalUrl)
             console.time("Getting institution data");
-            console.log(finalUrl)
             data = savedCSVData || (await _retrieveCSVData({ finalUrl, method, token, encoding }));
             data = await _retrieveCSVData({ finalUrl, method, token, encoding });
-            console.log(data)
             console.log(mode)
 
             switch (mode) {
@@ -399,11 +419,11 @@ myConnector.getData = async function(table, doneCallback){
             const rows_filtered_to_years = rows.filter(row => yearArray.includes(row[year_index]));
             rows_ordered = _orderRows(institution_column_names, header, rows_filtered_to_years);
 
-            // get variable metadata
+           /* // get variable metadata
             var variable_metadata = await fetch('https://educationdata-stg.urban.org/api/v1/api-values/?mode=tableauwdc')
             .then(response => response.json());
             var variable_metadata_feat = variable_metadata.results;
-            var var_label_variable_list = ["award_level", "majornum", "sex", "race", "region","inst_control", "institution_level"]
+            var var_label_variable_list = ["region","inst_control", "institution_level"]
             var label_dictionary = {}
             var_label_variable_list.forEach(item =>
                 label_dictionary[item] = {}
@@ -417,18 +437,15 @@ myConnector.getData = async function(table, doneCallback){
                     };
                 };
             });
-            console.log(variable_metadata);
 
-            //rows_ordered = rows_ordered.slice(0, 50)
             // FIGURE OUT WHAT TO DO WITH NULL VALUES
             // NEED TO UPDATE THIS FUNCTION TO WORK FOR ZIPS THAT START WITH 0!!
             rows_final = truncate_str(rows_ordered, "zip", institution_column_names, 0, 5)
             rows_final = pad_str(rows_final, "county_fips", institution_column_names, 5)
-            rows_final = _recodeVarWithMetadataLabel(rows_final, "institution_level", institution_column_names, label_dictionary)
-            console.log("finished recoding")
+            rows_final = _recodeVarWithMetadataLabel(rows_final, ["region","inst_control", "institution_level"], institution_column_names, label_dictionary)*/
 
-            while (row_index < rows_final.length) {
-                table.appendRows(rows_final.slice(row_index, size + row_index));
+            while (row_index < rows_ordered.length) {
+                table.appendRows(rows_ordered.slice(row_index, size + row_index));
                 row_index += size;
                 tableau.reportProgress("Getting row: " + row_index);
             }
@@ -439,9 +456,7 @@ myConnector.getData = async function(table, doneCallback){
 };
 tableau.connectionName = "CSV Data";
 tableau.registerConnector(myConnector);
-console.log("b");
 
-console.log("5");
 /*function _getVariableMetadata(){
         // Get metadata
         var variable_metadata = await fetch('https://educationdata-stg.urban.org/api/v1/api-variables/?mode=tableauwdc')
@@ -460,27 +475,37 @@ console.log("5");
                 };
             };
         });
-
         return label_dictionary
 }*/
 
-function _recodeVarWithMetadataLabel(data, var_name, column_header, label_dictionary){
+function _recodeVarWithMetadataLabel(data, var_list, column_header, label_dictionary){
     var keys = Object.keys(label_dictionary);
     keys.forEach(function(key){
         console.log(key, label_dictionary[key]);
     });
 // recode award_level using metadata labels
-    index = column_header.indexOf(var_name);
+    total_length = data.length
+    var i = 0;
+
     const data_cleaned = data.map(obj => {
         console.log("row")
-        console.log(obj[index])
-        console.log(label_dictionary[var_name][obj[index]])
-        if(obj[index] != null){
-            obj[index] = label_dictionary[var_name][obj[index]];
-        } else {
-            obj[index] = null;
-        };
+        console.log(i.toString() + " / " + total_length.toString())
+        var_list.forEach(function(var_name){
+            console.log(var_name)
+            index = column_header.indexOf(var_name);
+            console.log(obj[index])
+            if(obj[index] != null){
+                obj[index] = label_dictionary[var_name][obj[index]];
+            } else {
+                obj[index] = null;
+            };
+            console.log("after change...")
+            console.log(obj[index])
+            console.log("-----------------")
+        });
+        i = i + 1
         return obj;
+
     });
     return data_cleaned
 }
@@ -532,27 +557,17 @@ function _getColumnData(column_names, column_datatype, column_georole, var_label
 }
 
 function _orderRows(tableau_col_order, csv_header_full, data) {
-    var headerLength = header.length;
-    institutionColIndexes = [];
-    header_col_count = 0;
-    for (var i = 0; i < headerLength; i++) {
-        if(institution_column_names.includes(header[i])){
-        //console.log(header[i]);
-        institutionColIndexes.push(i);
-            if (header[i] ==  "year"){
-                year_index = i;
-            }
-            if (header[i] ==  "unitid"){
-                unitid_index = i;
-            }
-        }
-    }
+    var tableau_col_length = tableau_col_order.length;
+    tableau_col_indexes = [];
+    tableau_col_order.forEach(function(tableau_col){
+        index = csv_header_full.indexOf(tableau_col);
+        tableau_col_indexes.push(index);
+   });
 
     const data_ordered = data.map(obj => {
-              obj = institutionColIndexes.map(i => obj[i]);
-              obj.unshift(obj[unitid_index] + '-' + obj[year_index]);
-              return obj;
-            });
+        obj = tableau_col_indexes.map(i => obj[i]);
+        return obj;
+    });
 
  return data_ordered
 }
@@ -594,14 +609,14 @@ async function _submitDataToTableau() {
         ? "typed"
         : "loosetyped";
     if (!finalUrl) return _error("No data entered.");
-  
+
     const urlRegex = /^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/|ftp:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/gm;
     const result = finalUrl.match(urlRegex);
     if (result === null) {
       _error("WARNING: URL may not be valid...");
       await new Promise(resolve => setTimeout(resolve, 2000));
     }
-  
+
     tableau.connectionData = JSON.stringify({
       finalUrl,
       yearValue,
@@ -611,23 +626,23 @@ async function _submitDataToTableau() {
       mode
     });
     tableau.password = token;
-  
+
     tableau.submit();
 }
 // Gets data from CSV URL
 async function _retrieveCSVData({ finalUrl, method, token, encoding }) {
     console.time("Fetching data");
     let result;
-  
+
     try {
       let options = {
         method,
-        
+
         headers: {
           "Content-Type": "application/json"
         }
       };
-  
+
       if (token) {
         options.headers["Authorization"] = `Bearer ${token}`;
       }
